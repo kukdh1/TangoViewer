@@ -269,6 +269,10 @@ namespace kukdh1
 					glEnd();
 
 					// Draw Objects
+					m4Temp = glm::rotate(glm::mat4(1.0f), PI / 2, glm::vec3(1.0f, 0.0f, 0.0f));
+
+					glMultMatrixf(glm::value_ptr(m4Temp));
+
 					pglwThis->gdfDraw();
 
 					SwapBuffers(hdc);
