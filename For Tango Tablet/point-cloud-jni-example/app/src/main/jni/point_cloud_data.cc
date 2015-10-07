@@ -41,6 +41,13 @@ void PointCloudData::UpdatePointCloud(const TangoXYZij* point_cloud) {
   vertices_.resize(point_cloud_size);
   std::copy(point_cloud->xyz[0], point_cloud->xyz[0] + point_cloud_size,
             vertices_.begin());
+/*
+  ijs_cols = point_cloud->ij_cols;
+  ijs_rows = point_cloud->ij_rows;
+  ijs_.resize(ijs_cols * ijs_rows);
+  std::copy(point_cloud->ij, point_cloud->ij + (ijs_cols * ijs_rows), ijs_.begin());
+
+  LOGI("%d x %d of ij buffer", ijs_rows, ijs_cols);*/
 
   // Get current frame's point count.
   vertices_count_ = point_cloud->xyz_count;

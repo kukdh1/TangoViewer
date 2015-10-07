@@ -22,8 +22,7 @@
 namespace tango_gl {
 class Line : public DrawableObject {
  public:
-  Line(float line_width, GLenum render_mode)
-      : line_width_(line_width), render_mode_(render_mode) {};
+  Line(float line_width, GLenum render_mode);
   void SetLineWidth(const float pixels);
   void Render(const glm::mat4& projection_mat, const glm::mat4& view_mat) const;
   void UpdateLineVertices(const std::vector<glm::vec3>& vec_vertices) {
@@ -32,7 +31,6 @@ class Line : public DrawableObject {
 
  protected:
   float line_width_;
-  GLenum render_mode_;
   std::vector<glm::vec3> vec_vertices_;
 };
 }  // namespace tango_gl

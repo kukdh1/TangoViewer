@@ -17,21 +17,29 @@
 #ifndef TANGO_GL_MESH_H_
 #define TANGO_GL_MESH_H_
 
+#include "tango-gl/bounding_box.h"
 #include "tango-gl/drawable_object.h"
+#include "tango-gl/segment.h"
 
 namespace tango_gl {
 class Mesh : public DrawableObject {
  public:
+  Mesh();
+  Mesh(GLenum render_mode);
   void SetShader();
   void SetShader(bool is_lighting_on);
-  void SetLightPosition(const glm::vec3& light_position);
+  void SetBoundingBox();
+  void SetLightDirection(const glm::vec3& light_direction);
   void Render(const glm::mat4& projection_mat, const glm::mat4& view_mat) const;
+  bool IsIntersecting(const Segment& segment);
 
  protected:
+  BoundingBox* bounding_box_;
   bool is_lighting_on_;
-  glm::vec3 light_position_;
+  bool is_bounding_box_on_;
+  glm::vec3 light_direction_;
   GLuint uniform_mv_mat_;
-  GLuint uniform_light_pos_;
+  GLuint uniform_light_vec_;
 };
 }  // namespace tango_gl
 #endif  // TANGO_GL_MESH_H_

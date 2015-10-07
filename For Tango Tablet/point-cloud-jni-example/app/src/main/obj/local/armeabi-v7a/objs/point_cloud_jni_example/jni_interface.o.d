@@ -120,6 +120,7 @@ D:/Github/TangoViewer/point-cloud-jni-example/app/src/main/obj/local/armeabi-v7a
  D:/Github/TangoViewer/point-cloud-jni-example/app/src/main/jni/../../../../../tango-gl/include/tango-gl/transform.h \
  D:/Github/TangoViewer/point-cloud-jni-example/app/src/main/jni/../../../../../tango-gl/include/tango-gl/camera.h \
  D:/Github/TangoViewer/point-cloud-jni-example/app/src/main/jni/../../../../../tango-gl/include/tango-gl/gesture_camera.h \
+ D:/Github/TangoViewer/point-cloud-jni-example/app/src/main/jni/../../../../../tango-gl/include/tango-gl/segment.h \
  D:/Github/TangoViewer/point-cloud-jni-example/app/src/main/jni/../../../../../tango-gl/include/tango-gl/grid.h \
  D:/Github/TangoViewer/point-cloud-jni-example/app/src/main/jni/../../../../../tango-gl/include/tango-gl/frustum.h \
  D:/Github/TangoViewer/point-cloud-jni-example/app/src/main/jni/../../../../../tango-gl/include/tango-gl/trace.h \
@@ -403,6 +404,8 @@ D:/Github/TangoViewer/point-cloud-jni-example/app/src/main/jni/../../../../../ta
 D:/Github/TangoViewer/point-cloud-jni-example/app/src/main/jni/../../../../../tango-gl/include/tango-gl/camera.h:
 
 D:/Github/TangoViewer/point-cloud-jni-example/app/src/main/jni/../../../../../tango-gl/include/tango-gl/gesture_camera.h:
+
+D:/Github/TangoViewer/point-cloud-jni-example/app/src/main/jni/../../../../../tango-gl/include/tango-gl/segment.h:
 
 D:/Github/TangoViewer/point-cloud-jni-example/app/src/main/jni/../../../../../tango-gl/include/tango-gl/grid.h:
 

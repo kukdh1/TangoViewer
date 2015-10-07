@@ -35,7 +35,6 @@
 #define LOG_TAG "tango_jni_example"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
-#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
 
 #ifndef M_PI
 #define M_PI 3.1415926f
@@ -70,6 +69,11 @@ namespace util {
 
   glm::vec3 LerpVector(const glm::vec3& x, const glm::vec3& y, float a);
   float DistanceSquared(const glm::vec3& v1, const glm::vec3& v2);
+
+  bool SegmentAABBIntersect(const glm::vec3& aabb_min, const glm::vec3& aabb_max,
+                        const glm::vec3& start, const glm::vec3& end);
+
+  glm::vec3 ApplyTransform(const glm::mat4& mat, const glm::vec3& vec);
 }  // namespace util
 }  // namespace tango_gl
 #endif  // TANGO_GL_RENDERER_GL_UTIL

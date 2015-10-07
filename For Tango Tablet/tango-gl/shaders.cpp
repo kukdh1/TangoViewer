@@ -18,7 +18,9 @@
 namespace tango_gl {
 namespace shaders {
 std::string GetBasicVertexShader() {
-  return "attribute vec4 vertex;\n"
+  return "precision mediump float;\n"
+         "precision mediump int;\n"
+         "attribute vec4 vertex;\n"
          "uniform mat4 mvp;\n"
          "uniform vec4 color;\n"
          "varying vec4 v_color;\n"
@@ -37,7 +39,9 @@ std::string GetBasicFragmentShader() {
 }
 
 std::string GetColorVertexShader() {
-  return "attribute vec4 vertex;\n"
+  return "precision mediump float;\n"
+         "precision mediump int;\n"
+         "attribute vec4 vertex;\n"
          "attribute vec4 color;\n"
          "uniform mat4 mvp;\n"
          "varying vec4 v_color;\n"
@@ -77,16 +81,13 @@ std::string GetShadedVertexShader() {
          "uniform mat4 mvp;\n"
          "uniform mat4 mv;\n"
          "uniform vec4 color;\n"
-         "uniform vec3 lightPos;\n"
+         "uniform vec3 lightVec;\n"
          "varying vec4 v_color;\n"
          "void main() {\n"
-         "  vec3 mvVertex = vec3(mv * vertex);\n"
          "  vec3 mvNormal = vec3(mv * vec4(normal, 0.0));\n"
-         "  float distance = length(lightPos-mvVertex);\n"
-         "  vec3 lightVec = normalize(lightPos-mvVertex);\n"
-         "  float diffuse = max(dot(mvNormal, lightVec), 1.0);\n"
-         "  diffuse = diffuse * (1.0/(1.0 + (0.4 * distance * distance)));\n"
-         "  v_color = color * diffuse;\n"
+         "  float diffuse = max(-dot(mvNormal, lightVec), 0.0);\n"
+         "  v_color.a = color.a;\n"
+         "  v_color.xyz = color.xyz * diffuse + color.xyz * 0.3;\n"
          "  gl_Position = mvp*vertex;\n"
          "}\n";
 }

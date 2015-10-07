@@ -251,6 +251,7 @@ void PointCloudApp::Render() {
   glm::mat4 point_cloud_transformation;
 
     std::vector<float> vertices_cpy;
+ //   std::vector<uint32_t> ijs_cpy;
     std::vector<uint8_t> color_buffer;
   {
     std::lock_guard<std::mutex> lock(pose_mutex_);
@@ -266,7 +267,9 @@ void PointCloudApp::Render() {
     std::lock_guard<std::mutex> lock(point_cloud_mutex_);
     point_cloud_timestamp = point_cloud_data_.GetCurrentTimstamp();
     std::vector<float> vertices = point_cloud_data_.GetVerticeVector();
+ //     std::vector<uint32_t> ijs = point_cloud_data_.GetIJVector();
     vertices_cpy = std::vector<float>(vertices);
+ //     ijs_cpy = std::vector<uint32_t>(ijs);
   }
 
   // Get the latest pose transformation in opengl frame and apply extrinsics to

@@ -55,6 +55,8 @@ class PointCloudData {
   // @return the vector of the vertices.
   const std::vector<float>& GetVerticeVector() { return vertices_; }
 
+  //  const std::vector<uint32_t>& GetIJVector() { return ijs_; }
+
   // Update current point cloud data.
   //
   // @param point_cloud: point cloud data of the current frame.
@@ -68,6 +70,9 @@ class PointCloudData {
   // +X points toward the user's right, and +Y points toward the bottom of
   // the screen.
   std::vector<float> vertices_;
+ /* std::vector<uint32_t> ijs_;
+  int ijs_cols;
+  int ijs_rows;*/
 
   // Timestamp of current depth frame.
   double cur_frame_timstamp_;
