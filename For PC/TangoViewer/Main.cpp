@@ -1,10 +1,15 @@
 #include <Windows.h>
+#include <windowsx.h>
 #include <CommCtrl.h>
 #include <vector>
+#include <ppl.h>
 #include "GLWindow.h"
 #include "PointCloud.h"
 
 #pragma comment(lib, "comctl32")
+#pragma comment(linker,"\"/manifestdependency:type='win32' \
+name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
+processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
 #define WINDOW_WIDTH	1400
 #define WINDOW_HEIGHT	1000
@@ -13,11 +18,13 @@
 #define GL_WIDTH		1000
 #define GL_HEIGHT		WINDOW_HEIGHT
 
+#define ID_LISTBOX		10
+
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 BOOL BrowseFolder(HWND hParent, LPCTSTR szTitle, TCHAR *szFolder);
 void OpenGLDraw();
 
-LPCWSTR lpszClass = L"Tango Viewer v0.0";
+LPCWSTR lpszClass = L"Tango Viewer v0.1";
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow)
 {
@@ -25,6 +32,13 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 	MSG msg;
 	HWND hWnd;
 	RECT rtWindow;
+	INITCOMMONCONTROLSEX iccex;
+
+	iccex.dwSize = sizeof(INITCOMMONCONTROLSEX);
+	iccex.dwICC = ICC_WIN95_CLASSES;
+
+	if (!InitCommonControlsEx(&iccex))
+		return 1;
 
 	wndclass.cbClsExtra = 0;
 	wndclass.cbWndExtra = 0;
@@ -54,7 +68,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 }
 
 kukdh1::GLWindow *glWindow;
-std::vector<kukdh1::PointCloud *> vPointClouds;
+HWND hListBox;
+HFONT hFont;
 WCHAR *pszFolderPath;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
@@ -63,6 +78,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	{
 		case WM_CREATE:
 			RECT rtGLWindow;
+			
+			hFont = CreateFont(17, 0, 0, 0, 400, 0, 0, 0, DEFAULT_CHARSET, 3, 2, 1, FF_ROMAN, L"Segoe UI");
+			hListBox = CreateWindow(WC_LISTBOX, NULL, WS_VISIBLE | WS_CHILD | LBS_DISABLENOSCROLL| LBS_MULTIPLESEL | LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | LBS_NOTIFY, 0, 0, LIST_WIDTH, LIST_HEIGHT, hWnd, (HMENU)ID_LISTBOX, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+
+			SendMessage(hListBox, WM_SETFONT, (WPARAM)hFont, TRUE);
 
 			SetRect(&rtGLWindow, LIST_WIDTH, 0, LIST_WIDTH + GL_WIDTH, GL_HEIGHT);
 			glWindow = new kukdh1::GLWindow(hWnd, ((LPCREATESTRUCT)lParam)->hInstance, &rtGLWindow, OpenGLDraw);
@@ -73,6 +93,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 				WIN32_FIND_DATA wfd;
 				WCHAR *pszSearch;
 				HANDLE hSearch;
+				int nIndex;
 
 				if (pszFolderPath[wcslen(pszFolderPath) - 1] != L'\\')
 					wcscat_s(pszFolderPath, MAX_PATH, L"\\");
@@ -98,17 +119,38 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 							wcscpy_s(pszFullPath, MAX_PATH, pszFolderPath);
 							wcscat_s(pszFullPath, MAX_PATH, wfd.cFileName);
 
+							nIndex = SendMessage(hListBox, LB_ADDSTRING, -1, (LPARAM)wfd.cFileName);
+
 							pcTemp = new kukdh1::PointCloud();
 							pcTemp->FromFile(pszFullPath);
 
-							vPointClouds.push_back(pcTemp);
+							pcTemp->ApplyStaticalOutlierRemoveFilter();
+							pcTemp->ExecutePlaneSegmentation();
+
+							SendMessage(hListBox, LB_SETITEMDATA, nIndex, (LPARAM)pcTemp);
 						}
 					} while (FindNextFile(hSearch, &wfd));
 
 					free(pszFullPath);
+
+					nIndex = SendMessage(hListBox, LB_GETCOUNT, 0, 0);
+					SendMessage(hListBox, LB_SELITEMRANGEEX, 0, nIndex - 1);
 				}
 			}
+			else
+				return -1;
 
+			return 0;
+		case WM_COMMAND:
+			switch (LOWORD(wParam))
+			{
+				case ID_LISTBOX:
+					if (HIWORD(wParam) == LBN_SELCHANGE)
+					{
+						glWindow->Refresh();
+					}
+					break;
+			}
 			return 0;
 		case WM_MOUSEWHEEL:
 			glWindow->OnWheelMessage(hWnd, wParam, lParam);
@@ -117,8 +159,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			delete glWindow;
 			free(pszFolderPath);
 
-			for (unsigned int i = 0; i < vPointClouds.size(); i++)
-				delete vPointClouds.at(i);
+			int nCount;
+
+			nCount = SendMessage(hListBox, LB_GETCOUNT, 0, 0);
+			for (int i = 0; i < nCount; i++)
+				delete (kukdh1::PointCloud *)SendMessage(hListBox, LB_GETITEMDATA, i, 0);
 
 			PostQuitMessage(0);
 			return 0;
@@ -129,10 +174,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
 void OpenGLDraw()
 {
+	int nCount;
+	int *nSelected;
+
 	glPushMatrix();
 
-	for (size_t i = 0; i < vPointClouds.size(); i++)
-		vPointClouds.at(i)->DrawOnGLWindow();
+	nCount = SendMessage(hListBox, LB_GETSELCOUNT, 0, 0);
+	nSelected = (int *)calloc(nCount, sizeof(int));
+
+	SendMessage(hListBox, LB_GETSELITEMS, nCount, (LPARAM)nSelected);
+
+	for (int i = 0; i < nCount; i++)
+		((kukdh1::PointCloud *)SendMessage(hListBox, LB_GETITEMDATA, nSelected[i], 0))->DrawOnGLWindow();
+
+	free(nSelected);
 
 	glPopMatrix();
 }

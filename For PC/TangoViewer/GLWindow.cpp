@@ -106,7 +106,7 @@ namespace kukdh1
 
 					glMatrixMode(GL_PROJECTION);
 					glLoadIdentity();
-					gluPerspective(55, (pglwThis->rtWindow.right - pglwThis->rtWindow.left) / (pglwThis->rtWindow.bottom - pglwThis->rtWindow.top), 1.0, 100.0);
+					gluPerspective(55, (pglwThis->rtWindow.right - pglwThis->rtWindow.left) / (pglwThis->rtWindow.bottom - pglwThis->rtWindow.top), 1.5, 100.0);
 
 					glMatrixMode(GL_MODELVIEW);
 					glLoadIdentity();

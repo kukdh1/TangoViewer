@@ -22,6 +22,8 @@
 #define GL_MOVE_RATIO	0.01f
 #define GL_ZOOM_RATIO	0.01f
 
+#define PI		3.141592f
+
 namespace kukdh1
 {
 	/* MOUSE_POINT struct
