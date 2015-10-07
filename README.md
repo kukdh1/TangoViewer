@@ -18,6 +18,8 @@ Select Folder that contains *.bin files from tablet.
 ## Dependency
  - OpenGL (Included in Windows SDK)
  - GLM Library (Included in repository)
+ - Point Cloud Library (http://unanancyowen.com/?p=1255&lang=en, Visual Studion 2015 Version)
 
 ## History
  - Version 0.0 : Initial Commit.
+ - Version 0.1 : Add PCL.
