@@ -75,7 +75,7 @@ void Scene::SetupViewPort(int w, int h) {
 }
 
 void Scene::Render(const glm::mat4& cur_pose_transformation, const glm::mat4& point_cloud_transformation,
-                   const std::vector<float>& point_cloud_vertices, const std::vector<uint8_t>& colors, double timestamp) {
+                   const std::vector<float>& point_cloud_vertices, const std::vector<uint8_t>& colors, const std::vector<uint16_t> &ijs, double timestamp) {
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_CULL_FACE);
 
@@ -133,6 +133,7 @@ void Scene::Render(const glm::mat4& cur_pose_transformation, const glm::mat4& po
 
         oldPoints = std::vector<float>(point_cloud_vertices);
         oldColors = std::vector<uint8_t>(colors);
+        oldijs = std::vector<uint16_t>(ijs);
         oldTransform = glm::mat4(point_cloud_transformation);
         oldTimestamp = timestamp;
     }
@@ -147,7 +148,7 @@ void Scene::SetCaptureType(int index) {
     {
         std::lock_guard<std::mutex> guard(buffer_mutex);
 
-        buffer.addPointCloud(oldPoints, oldColors, oldTransform, oldTimestamp);
+        buffer.addPointCloud(oldPoints, oldColors, oldijs, oldTransform, oldTimestamp);
     }
     else if (index == 1)
         buffer.resetPointCloud();

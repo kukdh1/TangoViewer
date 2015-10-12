@@ -61,7 +61,7 @@ class Scene {
   // @param: point_cloud_vertices, point cloud's vertices of the current point
   //         frame.
   void Render(const glm::mat4& cur_pose_transformation, const glm::mat4& point_cloud_transformation,
-              const std::vector<float>& point_cloud_vertices, const std::vector<uint8_t>& colors, double timestamp);
+              const std::vector<float>& point_cloud_vertices, const std::vector<uint8_t>& colors, const std::vector<uint16_t> &ijs, double timestamp);
 
   // Set render camera's viewing angle, first person, third person or top down.
   //
@@ -106,6 +106,7 @@ class Scene {
     PointCloudBuffer buffer;
     std::vector<float> oldPoints;
     std::vector<uint8_t> oldColors;
+    std::vector<uint16_t> oldijs;
     glm::mat4 oldTransform;
     double oldTimestamp;
 };

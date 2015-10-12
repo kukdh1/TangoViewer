@@ -20,7 +20,7 @@ PROJECT_ROOT:= $(call my-dir)/../../../../..
 include $(CLEAR_VARS)
 OPENCV_INSTALL_MODULES:=on
 OPENCV_LIB_TYPE:=SHARED
-include $(PROJECT_ROOT)/../../Android/OpenCV-2.4.10-android-sdk/sdk/native/jni/OpenCV.mk
+include $(PROJECT_ROOT)/../../../Android/OpenCV-2.4.10-android-sdk/sdk/native/jni/OpenCV.mk
 LOCAL_ARM_NEON := true
 LOCAL_MODULE    += libpoint_cloud_jni_example
 LOCAL_SHARED_LIBRARIES += tango_client_api
@@ -29,7 +29,7 @@ LOCAL_CFLAGS    += -std=c++11
 LOCAL_C_INCLUDES += $(PROJECT_ROOT)/tango-service-sdk/include/ \
                     $(PROJECT_ROOT)/tango-gl/include \
                     $(PROJECT_ROOT)/third-party/glm/ \
-                    $(PROJECT_ROOT)/../../Android/OpenCV-2.4.10-android-sdk/sdk/native/jni/include
+                    $(PROJECT_ROOT)/../../../Android/OpenCV-2.4.10-android-sdk/sdk/native/jni/include
 
 LOCAL_SRC_FILES += jni_interface.cc \
                    point_cloud_data.cc \

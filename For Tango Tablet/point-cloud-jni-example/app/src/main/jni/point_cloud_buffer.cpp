@@ -11,14 +11,15 @@ void * filethread(void *data)
     uint8_t buffer[1024];
     timeval time;
 
-    sprintf(filename, "/storage/emulated/0/TangoData/PointCloud_%.3lf.bin", buf->timestamp);
-    LOGD("Save(): %s", filename);
+    sprintf(filename, "/storage/emulated/0/TangoData/PointCloud_%.3lf.pcdx", buf->timestamp);
+  //  LOGD("Save(): %s", filename);
 
     FILE *out = fopen(filename, "w+");
 
     uint32_t num;
     float *fpt = buf->points.data();
     uint8_t *cpt = buf->colors.data();
+    uint16_t *ijpt = buf->ijs.data();
 
     if (out) {
         //Write the number of points
@@ -28,11 +29,13 @@ void * filethread(void *data)
         //Write Transform Matrix
         fwrite(glm::value_ptr(buf->transform), sizeof(float), 16, out);
 
-        //Write Points and colors [X/Y/Z/RGBA]
+        //Write Points and colors [X/Y/Z/RGBA/J/I]
         for (uint32_t i = 0; i < num; i++)
         {
             fwrite(fpt + 3 * i, sizeof(float), 3, out);
             fwrite(cpt + 4 * i, sizeof(uint8_t), 4, out);
+            fwrite(ijpt + 2 * i, sizeof(uint16_t), 2, out);
+            LOGI("IJ : %d %d", *(ijpt + 2 * i), *(ijpt + 2 * i + 1));
         }
 
         fclose(out);
@@ -42,11 +45,11 @@ void * filethread(void *data)
 }
 
 namespace tango_point_cloud {
-    void PointCloudBuffer::addPointCloud(std::vector < float> &oldpoints, std::vector < uint8_t > &oldcolors, glm::mat4 & oldtransform, double timestamp)
+    void PointCloudBuffer::addPointCloud(std::vector < float> &oldpoints, std::vector < uint8_t > &oldcolors, std::vector<uint16_t> &oldijs, glm::mat4 & oldtransform, double timestamp)
     {
         std::lock_guard<std::mutex> guard(mutex);
 
-        vBuffer.push_back(POINT_CLOUD_BUFFER(oldpoints, oldcolors, oldtransform, timestamp));
+        vBuffer.push_back(POINT_CLOUD_BUFFER(oldpoints, oldcolors, oldijs, oldtransform, timestamp));
     }
 
     bool PointCloudBuffer::getPointCloud(uint32_t i, std::vector <float> &oldpoints, std::vector <uint8_t> &oldcolors, glm::mat4 &oldtransform)
@@ -86,7 +89,7 @@ namespace tango_point_cloud {
 
         for (uint32_t i = 0; i < vBuffer.size(); i++)
         {
-            param = new POINT_CLOUD_BUFFER(vBuffer.at(i).points, vBuffer.at(i).colors, vBuffer.at(i).transform, vBuffer.at(i).timestamp);
+            param = new POINT_CLOUD_BUFFER(vBuffer.at(i).points, vBuffer.at(i).colors, vBuffer.at(i).ijs, vBuffer.at(i).transform, vBuffer.at(i).timestamp);
 
             pthread_create(&tid, nullptr, filethread, (void *)param);
         }

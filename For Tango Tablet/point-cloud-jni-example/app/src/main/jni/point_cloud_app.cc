@@ -251,7 +251,7 @@ void PointCloudApp::Render() {
   glm::mat4 point_cloud_transformation;
 
     std::vector<float> vertices_cpy;
- //   std::vector<uint32_t> ijs_cpy;
+    std::vector<uint16_t> ijs_cpy;
     std::vector<uint8_t> color_buffer;
   {
     std::lock_guard<std::mutex> lock(pose_mutex_);
@@ -261,15 +261,14 @@ void PointCloudApp::Render() {
   double point_cloud_timestamp;
     vertices_cpy.clear();
     color_buffer.clear();
+    ijs_cpy.clear();
 
   // We make another copy for rendering and depth computation.
   {
     std::lock_guard<std::mutex> lock(point_cloud_mutex_);
     point_cloud_timestamp = point_cloud_data_.GetCurrentTimstamp();
     std::vector<float> vertices = point_cloud_data_.GetVerticeVector();
- //     std::vector<uint32_t> ijs = point_cloud_data_.GetIJVector();
     vertices_cpy = std::vector<float>(vertices);
- //     ijs_cpy = std::vector<uint32_t>(ijs);
   }
 
   // Get the latest pose transformation in opengl frame and apply extrinsics to
@@ -304,6 +303,7 @@ void PointCloudApp::Render() {
     glm::vec4 src, dst;
 
     color_buffer.reserve(vertices_count * 4);
+    ijs_cpy.reserve(vertices_count * 2);
 
     pthread_mutex_lock(image_frame_.imageMutex);
     image_frame_.GetClosestImageFrame(point_cloud_timestamp, &buffer);
@@ -320,6 +320,8 @@ void PointCloudApp::Render() {
             color_buffer.push_back(0);
             color_buffer.push_back(0);
             color_buffer.push_back(0);
+            ijs_cpy.push_back(0xFFFF);
+            ijs_cpy.push_back(0xFFFF);
         }
         else
         {
@@ -327,6 +329,8 @@ void PointCloudApp::Render() {
             color_buffer.push_back(*(buffer->data + (buffer->width * ny + nx) * 4 + 1)); //G
             color_buffer.push_back(*(buffer->data + (buffer->width * ny + nx) * 4 + 2)); //B
             color_buffer.push_back(*(buffer->data + (buffer->width * ny + nx) * 4 + 3)); //A
+            ijs_cpy.push_back((uint16_t)nx);
+            ijs_cpy.push_back((uint16_t)ny);
         }
 
         vertices_count++;
@@ -339,7 +343,7 @@ void PointCloudApp::Render() {
     point_cloud_data_.SetAverageDepth(average_depth_);
   }
 
-  main_scene_.Render(cur_pose_transformation, point_cloud_transformation, vertices_cpy, color_buffer, point_cloud_timestamp);
+  main_scene_.Render(cur_pose_transformation, point_cloud_transformation, vertices_cpy, color_buffer, ijs_cpy, point_cloud_timestamp);
 }
 void PointCloudApp::depthPointToImageAxis(float dx, float dy, float dz, float *ix, float *iy)
 {
