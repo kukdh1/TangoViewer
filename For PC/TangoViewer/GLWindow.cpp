@@ -54,6 +54,16 @@ namespace kukdh1
 		return RegisterClass(&wndclass);
 	}
 
+	void * GLWindow::operator new(size_t i)
+	{
+		return _aligned_malloc(i, 16);
+	}
+
+	void GLWindow::operator delete(void *ptr)
+	{
+		_aligned_free(ptr);
+	}
+
 	void GLWindow::Refresh()
 	{
 		InvalidateRect(hWindow, NULL, FALSE);

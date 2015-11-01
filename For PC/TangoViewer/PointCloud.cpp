@@ -2,35 +2,182 @@
 
 namespace kukdh1
 {
+	template <typename PointT>
+	void TransformPoint(PointT &input, PointT &translate, Eigen::Matrix3f &rotate)
+	{
+		Eigen::Vector3f eigenPoint;
+
+		eigenPoint(0) = input.x;
+		eigenPoint(1) = input.y;
+		eigenPoint(2) = input.z;
+
+		eigenPoint = rotate * eigenPoint;
+
+		input.x = eigenPoint(0) + translate.x;
+		input.y = eigenPoint(1) + translate.y;
+		input.z = eigenPoint(2) + translate.z;
+	}
+
+	template<typename PointT>
+	void TransformPoint(PointT & input, glm::mat4 & transform)
+	{
+		glm::vec4 v4Temp;
+
+		v4Temp.x = input.x;
+		v4Temp.y = input.y;
+		v4Temp.z = input.z;
+		v4Temp.w = 1;
+
+		v4Temp = transform * v4Temp;
+
+		input.x = v4Temp.x;
+		input.y = v4Temp.y;
+		input.z = v4Temp.z;
+	}
+
+	void TransformPoint(Eigen::Vector3f &input, glm::mat4 &transform)
+	{
+		glm::vec4 v4Temp;
+
+		v4Temp.x = input(0);
+		v4Temp.y = input(1);
+		v4Temp.z = input(2);
+		v4Temp.w = 1;
+
+		v4Temp = transform * v4Temp;
+
+		input(0) = v4Temp.x;
+		input(1) = v4Temp.y;
+		input(2) = v4Temp.z;
+	}
+
+	template <typename PointT>
+	void TransformBoundingBox(BoundingBox<PointT> &input, pcl::PointXYZRGB &translate, Eigen::Matrix3f &rotate)
+	{
+		input.Point[1] = input.Point[0];
+		input.Point[1].y = input.Point[6].y;
+		input.Point[2] = input.Point[0];
+		input.Point[2].x = input.Point[6].x;
+		input.Point[2].y = input.Point[6].y;
+		input.Point[3] = input.Point[0];
+		input.Point[3].x = input.Point[6].x;
+
+		input.Point[4] = input.Point[6];
+		input.Point[4].x = input.Point[0].x;
+		input.Point[4].y = input.Point[0].y;
+		input.Point[5] = input.Point[6];
+		input.Point[5].x = input.Point[0].x;
+		input.Point[7] = input.Point[6];
+		input.Point[7].y = input.Point[0].y;
+
+		for (int i = 0; i < 8; i++)
+			TransformPoint(input.Point[i], translate, rotate);
+	}
+
+	void TransformPlane(pcl::ModelCoefficients::Ptr pclPlane, glm::mat4 & transform)
+	{
+		//http://stackoverflow.com/questions/7685495/transforming-a-3d-plane-by-4x4-matrix
+		//Pseudo code in above page is wrong
+
+		glm::vec3 v3O;		//Point on the Plane = (-d) / (a^2 + b^2 + c^2) * (a, b, c)
+		glm::vec3 v3N;		//Normal Vector of Plane
+		glm::vec4 v4O;
+		glm::vec4 v4N;
+
+		v3N.x = pclPlane->values[0];
+		v3N.y = pclPlane->values[1];
+		v3N.z = pclPlane->values[2];
+		v3N = glm::normalize(v3N);
+		v3O = v3N * -pclPlane->values[3];
+
+		float temp = glm::dot(v3O, v3N) + pclPlane->values[3];
+
+		v4O = glm::vec4(v3O, 1);
+		v4N = glm::vec4(v3N, 0);
+		v4O = transform * v4O;
+		v4N = glm::transpose(glm::inverse(transform)) * v4N;
+		v3O = glm::vec3(v4O);
+		v3N = glm::vec3(v4N);
+
+		pclPlane->values[0] = v4N.x;
+		pclPlane->values[1] = v4N.y;
+		pclPlane->values[2] = v4N.z;
+		pclPlane->values[3] = -glm::dot(v3O, v3N);
+	}
+
+	void DrawCube(BoundingBox<pcl::PointXYZRGB> &pclRegion, COLORREF color)
+	{
+		int index[24] = { 0, 1, 0, 3, 0, 4, 1, 2, 1, 5, 2, 6, 2, 3, 3, 7, 4, 5, 5, 6, 6, 7, 7, 4 };
+
+		glBegin(GL_LINES);
+
+		glColor3ub(GetRValue(color), GetGValue(color), GetBValue(color));
+
+		for (int i = 0; i < 12; i++)
+		{
+			glVertex3f(pclRegion.Point[index[i * 2]].x, pclRegion.Point[index[i * 2]].y, pclRegion.Point[index[i * 2]].z);
+			glVertex3f(pclRegion.Point[index[i * 2 + 1]].x, pclRegion.Point[index[i * 2 + 1]].y, pclRegion.Point[index[i * 2 + 1]].z);
+		}
+
+		glEnd();
+	}
+
+	pcl::PointXYZRGB & PointCloud::GetPointCloudOrigin()
+	{
+		return pclOrigin;
+	}
+
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr & PointCloud::GetPointCloudData()
+	{
+		return pclPointCloudUnordered;
+	}
+
+	glm::mat4 & PointCloud::GetAdjustMatrix()
+	{
+		return m4Adjust;
+	}
+
 	PointCloud::PointCloud()
 	{
-		pclPointCloud = pcl::PointCloud<pcl::PointXYZRGB>::Ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
 		pclPointCloudUnordered = pcl::PointCloud<pcl::PointXYZRGB>::Ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
+		fTimestamp = 0.0;
+
+		bFiltered = FALSE;
+		bOBBCalculated = FALSE;
+		bPlaneCalculated = FALSE;
 	}
 
 	PointCloud::~PointCloud()
 	{
-		size_t stSize;
-
-		pclPointCloud->clear();
 		pclPointCloudUnordered->clear();
-
-		stSize = pclPlaneCoeffs.size();
-		for (size_t i = 0; i < stSize; i++)
-			pclPlaneCoeffs.at(i).reset();
-
-		stSize = pclPlanePoints.size();
-		for (size_t i = 0; i < stSize; i++)
-			pclPlanePoints.at(i)->clear();
 	}
 
-	void PointCloud::DrawOnGLWindow(BOOL bDrawPlanes)
+	void PointCloud::DrawOnGLWindow(BOOL bDrawOrigin, BOOL bDrawBoundingBox, BOOL bDrawPlanes)
 	{
 		size_t stSize;
 
 		glPushMatrix();
 
 		glMultMatrixf(glm::value_ptr(m4Adjust));
+
+		if (bDrawOrigin)
+		{
+			glBegin(GL_LINES);
+
+			glColor3ub(255, 0, 0);
+			glVertex3f(pclOrigin.x - 0.1, pclOrigin.y, pclOrigin.z);
+			glVertex3f(pclOrigin.x + 0.1, pclOrigin.y, pclOrigin.z);
+
+			glColor3ub(0, 255, 0);
+			glVertex3f(pclOrigin.x, pclOrigin.y - 0.1, pclOrigin.z);
+			glVertex3f(pclOrigin.x, pclOrigin.y + 0.1, pclOrigin.z);
+
+			glColor3ub(0, 0, 255);
+			glVertex3f(pclOrigin.x, pclOrigin.y, pclOrigin.z - 0.1);
+			glVertex3f(pclOrigin.x, pclOrigin.y, pclOrigin.z + 0.1);
+
+			glEnd();
+		}
 
 		glPointSize(3.0f);
 		glBegin(GL_POINTS);
@@ -48,30 +195,18 @@ namespace kukdh1
 
 		glEnd();
 
+		if (bDrawBoundingBox)
+		{
+			DrawCube(pclBoundingBox, RGB(100, 100, 100));
+		}
+
 		if (bDrawPlanes)
 		{
 			size_t stPlane;
-			size_t stPoint;
 
-			glBegin(GL_POINTS);
-
-			stPlane = pclPlanePoints.size();
-
+			stPlane = pclPlaneInfo.size();
 			for (size_t i = 0; i < stPlane; i++)
-			{
-				stPoint = pclPlanePoints.at(i)->size();
-
-				glColor3ub(255 * (i % 3 == 0 ? 1 : 0), 255 * (i % 3 == 1 ? 1 : 0), 255 * (i % 3 == 2 ? 1 : 0));
-
-				for (size_t j = 0; j < stPoint; j++)
-				{
-					pcl::PointXYZRGB &pclPointXYZRGB = pclPlanePoints.at(i)->at(j);
-
-					glVertex3f(pclPointXYZRGB.x + (i + 1) * 1, pclPointXYZRGB.y, pclPointXYZRGB.z);
-				}
-			}
-
-			glEnd();
+				DrawCube(pclPlaneInfo.at(i).pclBoundingBox, RGB(150, 0, 0));
 		}
 
 		glPopMatrix();
@@ -89,100 +224,164 @@ namespace kukdh1
 
 	void PointCloud::AdjustTransformMatrix(glm::mat4 &m4AdjustMatrix)
 	{
-		m4Adjust *= m4AdjustMatrix;
+		m4Adjust = m4AdjustMatrix * m4Adjust;
+	}
+
+	void PointCloud::ResetTransformMatrix()
+	{
+		m4Adjust = glm::mat4(1.0f);
+	}
+
+	void PointCloud::SaveTransformMatrix()
+	{
+		size_t stSize;
+
+		stSize = pclPointCloudUnordered->size();
+
+		concurrency::parallel_for(size_t(0), stSize, [&](size_t i)
+		{
+			TransformPoint(pclPointCloudUnordered->at(i), m4Adjust);
+		});
+
+		stSize = pclPlaneInfo.size();
+
+		concurrency::parallel_for(size_t(0), stSize, [&](size_t i)
+		{
+			TransformPoint(pclPlaneInfo.at(i).pclCentroid, m4Adjust);
+			TransformPlane(pclPlaneInfo.at(i).pclModelCoeff, m4Adjust);
+
+			for (int j = 0; j < 8; j++)
+				TransformPoint(pclPlaneInfo.at(i).pclBoundingBox.Point[j], m4Adjust);
+
+			size_t stPoints = pclPlaneInfo.at(i).pclPoints->size();
+			for (size_t j = 0; j < stPoints; j++)
+				TransformPoint(pclPlaneInfo.at(i).pclPoints->at(j), m4Adjust);
+		});
+
+		for (int i = 0; i < 8; i++)
+			TransformPoint(pclBoundingBox.Point[i], m4Adjust);
+
+		TransformPoint(pclOrigin, m4Adjust);
+
+		ResetTransformMatrix();
+	}
+
+	void PointCloud::CalculateBoundingBox()
+	{
+		if (!bOBBCalculated)
+		{
+			//Calculate Object Bounding Box for entire point cloud
+			Eigen::Matrix3f eigenRotationalMatrix;
+			pcl::PointXYZRGB pclPositionVector;
+			pcl::MomentOfInertiaEstimation<pcl::PointXYZRGB> pclMIE;
+
+			pclMIE.setInputCloud(pclPointCloudUnordered);
+			pclMIE.compute();
+			pclMIE.getOBB(pclBoundingBox.Point[0], pclBoundingBox.Point[6], pclPositionVector, eigenRotationalMatrix);
+			TransformBoundingBox(pclBoundingBox, pclPositionVector, eigenRotationalMatrix);
+
+			//Calculate OBB for each plane
+			size_t stSize;
+
+			stSize = pclPlaneInfo.size();
+
+			for (size_t i = 0; i < stSize; i++)
+			{
+				BoundingBox<pcl::PointXYZRGB> & pclOBB = pclPlaneInfo.at(i).pclBoundingBox;
+				Eigen::Vector3f & eigenCenter = pclPlaneInfo.at(i).pclCentroid;
+
+				pclMIE.setInputCloud(pclPlaneInfo.at(i).pclPoints);
+				pclMIE.compute();
+				pclMIE.getMassCenter(eigenCenter);
+				pclMIE.getOBB(pclOBB.Point[0], pclOBB.Point[6], pclPositionVector, eigenRotationalMatrix);
+				TransformBoundingBox(pclOBB, pclPositionVector, eigenRotationalMatrix);
+			}
+
+			bOBBCalculated = TRUE;
+		}
+	}
+
+	float PointCloud::GetTimestamp()
+	{
+		return fTimestamp;
 	}
 
 	void PointCloud::ApplyStaticalOutlierRemoveFilter()
 	{
-		pcl::PointCloud<pcl::PointXYZRGB>::Ptr pclOutput(new pcl::PointCloud<pcl::PointXYZRGB>);
-		pcl::StatisticalOutlierRemoval<pcl::PointXYZRGB> pclSOR;
+		if (!bFiltered)
+		{
+			pcl::PointCloud<pcl::PointXYZRGB>::Ptr pclOutput(new pcl::PointCloud<pcl::PointXYZRGB>);
+			pcl::StatisticalOutlierRemoval<pcl::PointXYZRGB> pclSOR;
 
-		pclSOR.setInputCloud(pclPointCloudUnordered);
-		pclSOR.setMeanK(SOR_MEAN_K);
-		pclSOR.setStddevMulThresh(SOR_STDDEV_MUL_THRES);
-		pclSOR.filter(*pclOutput);
+			pclSOR.setInputCloud(pclPointCloudUnordered);
+			pclSOR.setMeanK(SOR_MEAN_K);
+			pclSOR.setStddevMulThresh(SOR_STDDEV_MUL_THRES);
+			pclSOR.filter(*pclOutput);
 
-		pclPointCloudUnordered = pclOutput;
+			pclPointCloudUnordered = pclOutput;
+
+			bFiltered = TRUE;
+		}
 	}
 
 	size_t PointCloud::ExecutePlaneSegmentation()
 	{
-		/*
-		pcl::OrganizedMultiPlaneSegmentation<pcl::PointXYZRGB, pcl::Normal, pcl::Label> pclOMPS;
-		pcl::IntegralImageNormalEstimation<pcl::PointXYZRGB, pcl::Normal> pclIINE;
-		pcl::PointCloud<pcl::Normal>::Ptr pclNormalCloud(new pcl::PointCloud<pcl::Normal>);
-
-		//Estimate Normals
-		pclIINE.setNormalEstimationMethod(pclIINE.IINE_METHOD);
-		pclIINE.setMaxDepthChangeFactor(IINE_MAX_DEPTH_FACTOR);
-		pclIINE.setNormalSmoothingSize(IINE_SMOOTH_FACTOR);
-		pclIINE.setInputCloud(pclPointCloud);
-		pclIINE.compute(*pclNormalCloud);
-
-		//Segment Planes
-		pclOMPS.setMinInliers(OMPS_MINIMAL_INLIERS_PLANE);
-		pclOMPS.setAngularThreshold(OMPS_ANGULAR_THRESHOLD);
-		pclOMPS.setDistanceThreshold(OMPS_DISTANCE_THRESHOLD);
-		pclOMPS.setMaximumCurvature(OMPS_MAXIMUM_CULVATURE);
-		pclOMPS.setInputNormals(pclNormalCloud);
-		pclOMPS.setInputCloud(pclPointCloud);
-		pclOMPS.segment(pclRegion);
-		
-		return pclRegion.size();
-		*/
-
 		//http://www.pointclouds.org/documentation/tutorials/extract_indices.php
 
-		pcl::ModelCoefficients::Ptr pclModelCoeff(new pcl::ModelCoefficients());
-		pcl::PointIndices::Ptr pclInliers(new pcl::PointIndices());
-		pcl::SACSegmentation<pcl::PointXYZRGB> pclSACSeg;
-		pcl::ExtractIndices<pcl::PointXYZRGB> pclExtract;
-		pcl::PointCloud<pcl::PointXYZRGB>::Ptr pclCloud(new pcl::PointCloud<pcl::PointXYZRGB>(*pclPointCloudUnordered));
-		pcl::PointCloud<pcl::PointXYZRGB>::Ptr pclCloudF(new pcl::PointCloud<pcl::PointXYZRGB>);
-
-		size_t stPointCount;
-
-		pclSACSeg.setOptimizeCoefficients(TRUE);
-		pclSACSeg.setModelType(pcl::SACMODEL_PLANE);
-		pclSACSeg.setMethodType(pcl::SAC_RANSAC);
-		pclSACSeg.setMaxIterations(SAC_SEG_MAX_ITERATION);
-		pclSACSeg.setDistanceThreshold(SAC_SEG_DISTANCE_THRESHOLD);
-
-		stPointCount = pclCloud->size();
-
-		pcl::PointCloud<pcl::PointXYZRGB>::Ptr pclPlaneIndices;
-
-		while (pclCloud->size() > SAC_SEG_RATIO * stPointCount)
+		if (!bPlaneCalculated)
 		{
-			size_t stIndices;
+			pcl::PointIndices::Ptr pclInliers(new pcl::PointIndices());
+			pcl::SACSegmentation<pcl::PointXYZRGB> pclSACSeg;
+			pcl::ExtractIndices<pcl::PointXYZRGB> pclExtract;
+			pcl::PointCloud<pcl::PointXYZRGB>::Ptr pclCloud(new pcl::PointCloud<pcl::PointXYZRGB>(*pclPointCloudUnordered));
+			pcl::PointCloud<pcl::PointXYZRGB>::Ptr pclCloudF(new pcl::PointCloud<pcl::PointXYZRGB>);
 
-			pclPlaneIndices = pcl::PointCloud<pcl::PointXYZRGB>::Ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
+			size_t stPointCount;
 
-			pclSACSeg.setInputCloud(pclCloud);
-			pclSACSeg.segment(*pclInliers, *pclModelCoeff);
+			pclSACSeg.setOptimizeCoefficients(TRUE);
+			pclSACSeg.setModelType(pcl::SACMODEL_PLANE);
+			pclSACSeg.setMethodType(pcl::SAC_RANSAC);
+			pclSACSeg.setMaxIterations(SAC_SEG_MAX_ITERATION);
+			pclSACSeg.setDistanceThreshold(SAC_SEG_DISTANCE_THRESHOLD);
+			pclSACSeg.setEpsAngle(SAC_SEG_ANGLE_THRESHOLD);
 
-			stIndices = pclInliers->indices.size();
+			stPointCount = pclCloud->size();
 
-			if (stIndices == 0)
-				break;
+			while (pclCloud->size() > SAC_SEG_RATIO * stPointCount)
+			{
+				size_t stIndices;
+				PlaneInfo pclPlane;
 
-			pclExtract.setInputCloud(pclCloud);
-			pclExtract.setIndices(pclInliers);
-			pclExtract.setNegative(FALSE);
-			pclExtract.filter(*pclPlaneIndices);
-			pclExtract.setNegative(TRUE);
-			pclExtract.filter(*pclCloudF);
+				pclPlane.pclModelCoeff = pcl::ModelCoefficients::Ptr(new pcl::ModelCoefficients);
+				pclPlane.pclPoints = pcl::PointCloud<pcl::PointXYZRGB>::Ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
 
-			pclCloud.swap(pclCloudF);
+				pclSACSeg.setInputCloud(pclCloud);
+				pclSACSeg.segment(*pclInliers, *pclPlane.pclModelCoeff);
 
-			//Save
-			pclPlaneCoeffs.push_back(pclModelCoeff);
-			pclPlanePoints.push_back(pclPlaneIndices);
+				stIndices = pclInliers->indices.size();
 
-			pclModelCoeff = pcl::ModelCoefficients::Ptr(new pcl::ModelCoefficients());
+				if (stIndices == 0)
+					break;
+
+				pclExtract.setInputCloud(pclCloud);
+				pclExtract.setIndices(pclInliers);
+				pclExtract.setNegative(FALSE);
+				pclExtract.filter(*pclPlane.pclPoints);
+				pclExtract.setNegative(TRUE);
+				pclExtract.filter(*pclCloudF);
+
+				pclCloud.swap(pclCloudF);
+
+				//Save
+				pclPlaneInfo.push_back(pclPlane);
+			}
+
+			bPlaneCalculated = TRUE;
+
+			return pclPlaneInfo.size();
 		}
 
-		return pclPlaneCoeffs.size();
+		return 0;
 	}
 
 	BOOL PointCloud::FromFile(WCHAR * pszFilePath)
@@ -198,6 +397,10 @@ namespace kukdh1
 		if (hFile != INVALID_HANDLE_VALUE)
 		{
 			float fMatrix[16];
+			WCHAR *pszName;
+
+			pszName = wcsrchr(pszFilePath, L'\\') + 1;
+			swscanf_s(pszName, L"PointCloud_%f.pcdx", &fTimestamp);
 
 			ReadFile(hFile, &uiPointCount, 4, &dwRead, NULL);
 
@@ -205,6 +408,7 @@ namespace kukdh1
 			{
 				ReadFile(hFile, fMatrix, 16 * 4, &dwRead, NULL);
 				memcpy(glm::value_ptr(m4Temp), fMatrix, 16 * 4);
+				m4Temp *= kOpengGL_T_Depth;
 
 				ppPointij = (Pointij *)calloc(uiPointCount, sizeof(Pointij));
 
@@ -212,43 +416,22 @@ namespace kukdh1
 				{
 					ReadFile(hFile, ppPointij, sizeof(Pointij) * uiPointCount, &dwRead, NULL);
 
-					//Initiate Point Cloud Class
-					pclPointCloud->clear();
-					pclPointCloud->width = TANGO_IMAGE_WIDTH;
-					pclPointCloud->height = TANGO_IMAGE_HEIGHT;
-					pclPointCloud->resize(TANGO_IMAGE_WIDTH * TANGO_IMAGE_HEIGHT);
-
 					pclPointCloudUnordered->clear();
 					pclPointCloudUnordered->width = uiPointCount;
 					pclPointCloudUnordered->height = 1;
 					pclPointCloudUnordered->resize(uiPointCount);
 
-					//Set NAN
-					concurrency::parallel_for(size_t(0), (size_t)(TANGO_IMAGE_WIDTH * TANGO_IMAGE_HEIGHT), [&](size_t i)
-					{
-						pclPointCloud->at(i).x = NAN;
-						pclPointCloud->at(i).y = NAN;
-						pclPointCloud->at(i).z = NAN;
-					});
-
 					//Set Read Point Cloud
 					concurrency::parallel_for(size_t(0), uiPointCount, [&](size_t i)
 					{
 						glm::vec4 v4Temp;
-						size_t idx;
 						Pointij *ppNow;
 
 						ppNow = ppPointij + i;
 						v4Temp.w = 1;
-						idx = ppNow->ijs.x + ppNow->ijs.y * TANGO_IMAGE_WIDTH;
 
 						memcpy(glm::value_ptr(v4Temp), ppNow, 12);
-						v4Temp = m4Temp * kOpengGL_T_Depth * v4Temp;
-
-						pclPointCloud->at(idx).x = v4Temp.x;
-						pclPointCloud->at(idx).y = v4Temp.y;
-						pclPointCloud->at(idx).z = v4Temp.z;
-						pclPointCloud->at(idx).rgba = ppNow->c;
+						v4Temp = m4Temp * v4Temp;
 
 						pclPointCloudUnordered->at(i).x = v4Temp.x;
 						pclPointCloudUnordered->at(i).y = v4Temp.y;
@@ -257,6 +440,9 @@ namespace kukdh1
 					});
 
 					free(ppPointij);
+
+					//Set Origin
+					TransformPoint(pclOrigin, m4Temp);
 				}
 			}
 
@@ -266,5 +452,35 @@ namespace kukdh1
 		}
 
 		return FALSE;
+	}
+
+	BOOL PointCloud::ToFile(WCHAR * pszFilePath)
+	{
+		return TRUE;
+	}
+
+	std::vector<PlaneInfo> & PointCloud::GetPlaneInfo()
+	{
+		return pclPlaneInfo;
+	}
+
+	BoundingBox<pcl::PointXYZRGB> & PointCloud::GetPointCloudOBB()
+	{
+		return pclBoundingBox;
+	}
+
+	BOOL PointCloud::GetFilterStatus()
+	{
+		return bFiltered;
+	}
+
+	BOOL PointCloud::GetOBBStatus()
+	{
+		return bOBBCalculated;
+	}
+
+	BOOL PointCloud::GetPlaneSegmentationStatus()
+	{
+		return bPlaneCalculated;
 	}
 }

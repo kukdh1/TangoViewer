@@ -2,27 +2,22 @@
 #include <windowsx.h>
 #include <CommCtrl.h>
 #include <vector>
-#include <ppl.h>
+#include "Constant.h"
 #include "GLWindow.h"
 #include "PointCloud.h"
+#include "PointCloudMerge.h"
+#include "Log.h"
+#include "Stopwatch.h"
 
 #pragma comment(lib, "comctl32")
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
 name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
 processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
-#define WINDOW_WIDTH	1400
-#define WINDOW_HEIGHT	1000
-#define LIST_WIDTH		400
-#define LIST_HEIGHT		WINDOW_HEIGHT
-#define GL_WIDTH		1000
-#define GL_HEIGHT		WINDOW_HEIGHT
-
-#define ID_LISTBOX		10
-
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 BOOL BrowseFolder(HWND hParent, LPCTSTR szTitle, TCHAR *szFolder);
 void OpenGLDraw();
+DWORD WINAPI FileOpenThread(LPVOID arg);
 
 LPCWSTR lpszClass = L"Tango Viewer v0.1";
 
@@ -68,12 +63,20 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 }
 
 kukdh1::GLWindow *glWindow;
+kukdh1::LogWindow *lWindow;
 HWND hListBox;
 HFONT hFont;
 WCHAR *pszFolderPath;
 
+kukdh1::Stopwatch stopwatch;
+
+BOOL bDrawFlag[3];
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
+	int nCount;
+	std::vector<kukdh1::PointCloud *> vCloudData;
+
 	switch (iMessage)
 	{
 		case WM_CREATE:
@@ -86,68 +89,135 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
 			SetRect(&rtGLWindow, LIST_WIDTH, 0, LIST_WIDTH + GL_WIDTH, GL_HEIGHT);
 			glWindow = new kukdh1::GLWindow(hWnd, ((LPCREATESTRUCT)lParam)->hInstance, &rtGLWindow, OpenGLDraw);
+			lWindow = new kukdh1::LogWindow(hWnd, ((LPCREATESTRUCT)lParam)->hInstance);
+
+			lWindow->SetFont(hFont);
 
 			pszFolderPath = (WCHAR *)calloc(MAX_PATH, sizeof(WCHAR));
 			if (BrowseFolder(hWnd, L"Choose Folder", pszFolderPath))
 			{
-				WIN32_FIND_DATA wfd;
-				WCHAR *pszSearch;
-				HANDLE hSearch;
-				int nIndex;
+				HANDLE hThread;
 
-				if (pszFolderPath[wcslen(pszFolderPath) - 1] != L'\\')
-					wcscat_s(pszFolderPath, MAX_PATH, L"\\");
-
-				pszSearch = (WCHAR *)calloc(MAX_PATH, sizeof(WCHAR));
-				wcscpy_s(pszSearch, MAX_PATH, pszFolderPath);
-				wcscat_s(pszSearch, MAX_PATH, L"PointCloud_*.bin");
-
-				hSearch = FindFirstFile(pszSearch, &wfd);
-
-				if (hSearch != INVALID_HANDLE_VALUE)
-				{
-					WCHAR *pszFullPath;
-
-					pszFullPath = (WCHAR *)calloc(MAX_PATH, sizeof(WCHAR));
-
-					do
-					{
-						if (!(wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-						{
-							kukdh1::PointCloud *pcTemp;
-
-							wcscpy_s(pszFullPath, MAX_PATH, pszFolderPath);
-							wcscat_s(pszFullPath, MAX_PATH, wfd.cFileName);
-
-							nIndex = SendMessage(hListBox, LB_ADDSTRING, -1, (LPARAM)wfd.cFileName);
-
-							pcTemp = new kukdh1::PointCloud();
-							pcTemp->FromFile(pszFullPath);
-
-							pcTemp->ApplyStaticalOutlierRemoveFilter();
-							pcTemp->ExecutePlaneSegmentation();
-
-							SendMessage(hListBox, LB_SETITEMDATA, nIndex, (LPARAM)pcTemp);
-						}
-					} while (FindNextFile(hSearch, &wfd));
-
-					free(pszFullPath);
-
-					nIndex = SendMessage(hListBox, LB_GETCOUNT, 0, 0);
-					SendMessage(hListBox, LB_SELITEMRANGEEX, 0, nIndex - 1);
-				}
+				hThread = CreateThread(NULL, 0, FileOpenThread, NULL, NULL, NULL);
+				CloseHandle(hThread);
 			}
 			else
 				return -1;
+
+			lWindow->ToggleLogWindow();
+
+			return 0;
+		case WM_KEYUP:
+			int *nSelected;
+
+			nCount = SendMessage(hListBox, LB_GETSELCOUNT, 0, 0);
+			nSelected = (int *)calloc(nCount, sizeof(int));
+
+			SendMessage(hListBox, LB_GETSELITEMS, nCount, (LPARAM)nSelected);
+
+			switch (wParam)
+			{
+				case 'S':	//Do Simple Error Correction for selection
+					if (nCount == 2)
+					{
+						lWindow->PrintLog(L"Do Error Correction for %d and %d\r\n", nSelected[0], nSelected[1]);
+
+						stopwatch.tic();
+						CalculateCorrection(*(kukdh1::PointCloud *)SendMessage(hListBox, LB_GETITEMDATA, nSelected[0], 0), *(kukdh1::PointCloud *)SendMessage(hListBox, LB_GETITEMDATA, nSelected[1], 0));
+						stopwatch.tok();
+
+						lWindow->PrintLog(L"Error Correction Finished (%.3lf)\r\n\r\n", stopwatch.get());
+					}
+					else
+						lWindow->PrintLog(L"Error Correction need two selections of data\r\n");
+					break;
+				case 'T':	//Generate Plane relation tree and correct error
+					size_t stCloudCount;
+
+					stCloudCount = SendMessage(hListBox, LB_GETCOUNT, 0, 0);
+
+					lWindow->PrintLog(L"Generate Relation Tree for %d planes\r\n", stCloudCount);
+					stopwatch.tic();
+
+					for (size_t i = 0; i < stCloudCount; i++)
+						vCloudData.push_back((kukdh1::PointCloud *)SendMessage(hListBox, LB_GETITEMDATA, i, 0));
+
+					{
+						kukdh1::PlaneTree ptTree;
+
+						ptTree.AddPointCloud(vCloudData);
+						ptTree.DoErrorCorrection(lWindow);
+					}
+					
+					stopwatch.tok();
+
+					glWindow->Refresh();
+
+					vCloudData.clear();
+
+					lWindow->PrintLog(L"End of error correction (%.3lfms)\r\n\r\n", stopwatch.get());
+
+					break;
+				case 'A':	//Save Adjust Matrix for selection
+					lWindow->PrintLog(L"Save adjust matrix of selected data\r\n");
+
+					for (int i = 0; i < nCount; i++)
+						((kukdh1::PointCloud *)SendMessage(hListBox, LB_GETITEMDATA, nSelected[i], 0))->SaveTransformMatrix();
+
+					lWindow->PrintLog(L"Save adjust matrix Finished\r\n\r\n");
+					break;
+				case 'E':	//Reset Adjust Matrix for selection
+					lWindow->PrintLog(L"Reset adjust matrix of selected data\r\n");
+
+					for (int i = 0; i < nCount; i++)
+						((kukdh1::PointCloud *)SendMessage(hListBox, LB_GETITEMDATA, nSelected[i], 0))->ResetTransformMatrix();
+
+					lWindow->PrintLog(L"Reset adjust matrix Finished\r\n\r\n");
+					break;
+				case 'B':	//Toggle Object Oriented Bounding Box
+					bDrawFlag[1] = !bDrawFlag[1];
+					glWindow->Refresh();
+					break;
+				case 'P':	//Toggle Plane OOBB
+					bDrawFlag[2] = !bDrawFlag[2];
+					glWindow->Refresh();
+					break;
+				case 'O':	//Toggle Origin
+					bDrawFlag[0] = !bDrawFlag[0];
+					glWindow->Refresh();
+					break;
+				case 'R':	//Refresh GLWindow
+					glWindow->Refresh();
+					break;
+				case 'L':	//Toggle LogWindow
+					lWindow->ToggleLogWindow();
+					break;
+				case 'D':	//Deselect All
+					SendMessage(hListBox, LB_SETSEL, FALSE, -1);
+					glWindow->Refresh();
+					break;
+			}
+
+			free(nSelected);
+
+			return 0;
+		case WM_MOVE:
+			RECT rtWindow;
+
+			GetWindowRect(hWnd, &rtWindow);
+			lWindow->MoveLogWindow(rtWindow.right, rtWindow.top);
 
 			return 0;
 		case WM_COMMAND:
 			switch (LOWORD(wParam))
 			{
 				case ID_LISTBOX:
-					if (HIWORD(wParam) == LBN_SELCHANGE)
+					switch (HIWORD(wParam))
 					{
-						glWindow->Refresh();
+						case LBN_SELCHANGE:
+							glWindow->Refresh();
+							SetFocus(hWnd);
+							break;
 					}
 					break;
 			}
@@ -157,9 +227,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			return 0;
 		case WM_DESTROY:
 			delete glWindow;
+			delete lWindow;
 			free(pszFolderPath);
-
-			int nCount;
 
 			nCount = SendMessage(hListBox, LB_GETCOUNT, 0, 0);
 			for (int i = 0; i < nCount; i++)
@@ -185,11 +254,86 @@ void OpenGLDraw()
 	SendMessage(hListBox, LB_GETSELITEMS, nCount, (LPARAM)nSelected);
 
 	for (int i = 0; i < nCount; i++)
-		((kukdh1::PointCloud *)SendMessage(hListBox, LB_GETITEMDATA, nSelected[i], 0))->DrawOnGLWindow();
+		((kukdh1::PointCloud *)SendMessage(hListBox, LB_GETITEMDATA, nSelected[i], 0))->DrawOnGLWindow(bDrawFlag[0], bDrawFlag[1], bDrawFlag[2]);
 
 	free(nSelected);
 
 	glPopMatrix();
+}
+
+DWORD WINAPI FileOpenThread(LPVOID arg)
+{
+	EnableWindow(hListBox, FALSE);
+
+	WIN32_FIND_DATA wfd;
+	WCHAR *pszSearch;
+	HANDLE hSearch;
+	kukdh1::Stopwatch stopwatch;
+	int nIndex;
+
+	int nCount = 0;
+	int nPlaneCount;
+
+	lWindow->PrintLog(L"Folder Search Started\r\n");
+	stopwatch.tic();
+
+	if (pszFolderPath[wcslen(pszFolderPath) - 1] != L'\\')
+		wcscat_s(pszFolderPath, MAX_PATH, L"\\");
+
+	pszSearch = (WCHAR *)calloc(MAX_PATH, sizeof(WCHAR));
+	wcscpy_s(pszSearch, MAX_PATH, pszFolderPath);
+	wcscat_s(pszSearch, MAX_PATH, L"PointCloud_*.pcdx");
+
+	hSearch = FindFirstFile(pszSearch, &wfd);
+
+	if (hSearch != INVALID_HANDLE_VALUE)
+	{
+		WCHAR *pszFullPath;
+
+		pszFullPath = (WCHAR *)calloc(MAX_PATH, sizeof(WCHAR));
+
+		do
+		{
+			if (!(wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+			{
+				kukdh1::PointCloud *pcTemp;
+
+				wcscpy_s(pszFullPath, MAX_PATH, pszFolderPath);
+				wcscat_s(pszFullPath, MAX_PATH, wfd.cFileName);
+
+				pcTemp = new kukdh1::PointCloud();
+
+				if (pcTemp->FromFile(pszFullPath))
+				{
+					lWindow->PrintLog(L" [%d] %s\r\n", nCount++, wfd.cFileName);
+
+					pcTemp->ApplyStaticalOutlierRemoveFilter();
+					nPlaneCount = pcTemp->ExecutePlaneSegmentation();
+					pcTemp->CalculateBoundingBox();
+
+					lWindow->PrintLog(L"  %d Planes detected\r\n\r\n", nPlaneCount);
+
+					nIndex = SendMessage(hListBox, LB_ADDSTRING, -1, (LPARAM)wfd.cFileName);
+					SendMessage(hListBox, LB_SETITEMDATA, nIndex, (LPARAM)pcTemp);
+				}
+				else
+					delete pcTemp;
+			}
+		} while (FindNextFile(hSearch, &wfd));
+
+		FindClose(hSearch);
+		free(pszFullPath);
+
+		SendMessage(hListBox, LB_SETSEL, TRUE, -1);
+	}
+
+	EnableWindow(hListBox, TRUE);
+	glWindow->Refresh();
+
+	stopwatch.tok();
+	lWindow->PrintLog(L"%d File Found and Read (%.3lf ms)\r\n\r\n", nCount, stopwatch.get());
+
+	return 0;
 }
 
 #include <shlobj.h>

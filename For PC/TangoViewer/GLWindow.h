@@ -7,22 +7,15 @@
 #include <windowsx.h>
 #include <gl/GL.h>
 #include <gl/GLU.h>
+#include <math.h>
 #include "glm/mat4x4.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
+#include "Constant.h"
+
 #pragma comment(lib, "opengl32")
 #pragma comment(lib, "glu32")
-
-#define WM_REGISTER_THIS		WM_APP
-#define	WM_MOUSEWHEEL_PASS		WM_APP + 1
-
-#define GL_GRID_SIZE	50
-#define GL_ROT_RATIO	0.01f
-#define GL_MOVE_RATIO	0.01f
-#define GL_ZOOM_RATIO	0.01f
-
-#define PI		3.141592f
 
 namespace kukdh1
 {
@@ -115,6 +108,9 @@ namespace kukdh1
 
 			void OnWheelMessage(HWND hParent, WPARAM wParam, LPARAM lParam);
 			void Refresh();
+
+			static void * operator new(size_t);
+			static void operator delete(void *);
 
 			static LRESULT CALLBACK OpenGLProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
 	};
