@@ -8,6 +8,7 @@
 #include "PointCloudMerge.h"
 #include "Log.h"
 #include "Stopwatch.h"
+#include "LUM.h"
 
 #pragma comment(lib, "comctl32")
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
@@ -18,6 +19,8 @@ LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 BOOL BrowseFolder(HWND hParent, LPCTSTR szTitle, TCHAR *szFolder);
 void OpenGLDraw();
 DWORD WINAPI FileOpenThread(LPVOID arg);
+DWORD WINAPI ErrorCorrectionThread(LPVOID arg);
+DWORD WINAPI LUMThread(LPVOID arg);
 
 LPCWSTR lpszClass = L"Tango Viewer v0.1";
 
@@ -67,6 +70,7 @@ kukdh1::LogWindow *lWindow;
 HWND hListBox;
 HFONT hFont;
 WCHAR *pszFolderPath;
+HANDLE hKeyboardLock;
 
 kukdh1::Stopwatch stopwatch;
 
@@ -75,7 +79,7 @@ BOOL bDrawFlag[3];
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
 	int nCount;
-	std::vector<kukdh1::PointCloud *> vCloudData;
+	HANDLE hThread;
 
 	switch (iMessage)
 	{
@@ -96,8 +100,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			pszFolderPath = (WCHAR *)calloc(MAX_PATH, sizeof(WCHAR));
 			if (BrowseFolder(hWnd, L"Choose Folder", pszFolderPath))
 			{
-				HANDLE hThread;
-
 				hThread = CreateThread(NULL, 0, FileOpenThread, NULL, NULL, NULL);
 				CloseHandle(hThread);
 			}
@@ -106,9 +108,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
 			lWindow->ToggleLogWindow();
 
+			hKeyboardLock = CreateEvent(NULL, TRUE, FALSE, NULL);
+
 			return 0;
 		case WM_KEYUP:
 			int *nSelected;
+
+			if (WaitForSingleObject(hKeyboardLock, 0) == WAIT_OBJECT_0)
+				return 0;
 
 			nCount = SendMessage(hListBox, LB_GETSELCOUNT, 0, 0);
 			nSelected = (int *)calloc(nCount, sizeof(int));
@@ -132,30 +139,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 						lWindow->PrintLog(L"Error Correction need two selections of data\r\n");
 					break;
 				case 'T':	//Generate Plane relation tree and correct error
-					size_t stCloudCount;
+					hThread = CreateThread(NULL, 0, ErrorCorrectionThread, NULL, NULL, NULL);
+					CloseHandle(hThread);
 
-					stCloudCount = SendMessage(hListBox, LB_GETCOUNT, 0, 0);
-
-					lWindow->PrintLog(L"Generate Relation Tree for %d planes\r\n", stCloudCount);
-					stopwatch.tic();
-
-					for (size_t i = 0; i < stCloudCount; i++)
-						vCloudData.push_back((kukdh1::PointCloud *)SendMessage(hListBox, LB_GETITEMDATA, i, 0));
-
-					{
-						kukdh1::PlaneTree ptTree;
-
-						ptTree.AddPointCloud(vCloudData);
-						ptTree.DoErrorCorrection(lWindow);
-					}
-					
-					stopwatch.tok();
-
-					glWindow->Refresh();
-
-					vCloudData.clear();
-
-					lWindow->PrintLog(L"End of error correction (%.3lfms)\r\n\r\n", stopwatch.get());
+					break;
+				case 'U':	//Calculate LUM
+					hThread = CreateThread(NULL, 0, LUMThread, NULL, NULL, NULL);
+					CloseHandle(hThread);
 
 					break;
 				case 'A':	//Save Adjust Matrix for selection
@@ -229,12 +219,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			delete glWindow;
 			delete lWindow;
 			free(pszFolderPath);
+			CloseHandle(hKeyboardLock);
 
 			nCount = SendMessage(hListBox, LB_GETCOUNT, 0, 0);
 			for (int i = 0; i < nCount; i++)
 				delete (kukdh1::PointCloud *)SendMessage(hListBox, LB_GETITEMDATA, i, 0);
 
 			PostQuitMessage(0);
+
 			return 0;
 	}
 
@@ -332,6 +324,80 @@ DWORD WINAPI FileOpenThread(LPVOID arg)
 
 	stopwatch.tok();
 	lWindow->PrintLog(L"%d File Found and Read (%.3lf ms)\r\n\r\n", nCount, stopwatch.get());
+
+	return 0;
+}
+
+DWORD WINAPI ErrorCorrectionThread(LPVOID arg)
+{
+	size_t stCloudCount;
+	kukdh1::PointCloudVector vCloudData;
+
+	EnableWindow(hListBox, FALSE);
+	SetEvent(hKeyboardLock);
+
+	stCloudCount = SendMessage(hListBox, LB_GETCOUNT, 0, 0);
+
+	lWindow->PrintLog(L"Generate Relation Tree for %d planes\r\n", stCloudCount);
+	stopwatch.tic();
+
+	for (size_t i = 0; i < stCloudCount; i++)
+		vCloudData.push_back((kukdh1::PointCloud *)SendMessage(hListBox, LB_GETITEMDATA, i, 0));
+
+	{
+		kukdh1::PlaneTree ptTree;
+
+		ptTree.AddPointCloud(vCloudData);
+		ptTree.DoErrorCorrection(lWindow);
+	}
+
+	stopwatch.tok();
+
+	glWindow->Refresh();
+
+	vCloudData.clear();
+
+	lWindow->PrintLog(L"End of error correction (%.3lfms)\r\n\r\n", stopwatch.get());
+
+	ResetEvent(hKeyboardLock);
+	EnableWindow(hListBox, TRUE);
+
+	return 0;
+}
+
+DWORD WINAPI LUMThread(LPVOID arg)
+{
+	size_t stCloudCount;
+	kukdh1::PointCloudVector vCloudData;
+
+	EnableWindow(hListBox, FALSE);
+	SetEvent(hKeyboardLock);
+
+	stCloudCount = SendMessage(hListBox, LB_GETCOUNT, 0, 0);
+
+	lWindow->PrintLog(L"Calculate LUM for %d planes\r\n", stCloudCount);
+	stopwatch.tic();
+
+	for (size_t i = 0; i < stCloudCount; i++)
+		vCloudData.push_back((kukdh1::PointCloud *)SendMessage(hListBox, LB_GETITEMDATA, i, 0));
+
+	{
+		kukdh1::LUM lLUM;
+
+		lLUM.AddPointClouds(vCloudData);
+		lLUM.Compute();
+	}
+
+	stopwatch.tok();
+
+	glWindow->Refresh();
+
+	vCloudData.clear();
+
+	lWindow->PrintLog(L"End of calculation (%.3lfms)\r\n\r\n", stopwatch.get());
+
+	ResetEvent(hKeyboardLock);
+	EnableWindow(hListBox, TRUE);
 
 	return 0;
 }

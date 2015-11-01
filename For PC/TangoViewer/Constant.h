@@ -45,6 +45,11 @@
 #define GL_HEIGHT		WINDOW_HEIGHT
 #define LOG_WIDTH		300
 
+//Constants for LUM
+#define CORR_MAX_DISTANCE		2.5f
+#define CENTROID_MAX_DISTANCE	5.0f
+#define LUM_MAX_ITERATION		100
+
 //Child ID Definition
 #define ID_LISTBOX		10
 #define ID_LOG_EDIT		20
