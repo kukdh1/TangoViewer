@@ -35,26 +35,17 @@ namespace kukdh1
 	{
 		size_t stInputCount;
 		size_t stVertex;
-		glm::mat4 m4First;
 
 		stInputCount = input.size();
 
 		if (stInputCount == 0)
 			return;
 		
-		m4First = glm::inverse(input.at(0)->GetAdjustMatrix());
-
-		stVertex = pclLUM.addPointCloud(input.at(0)->GetPointCloudData());
-		pVertexIndex.push_back(std::pair<size_t, size_t>(0, stVertex));
-		
 		if (stInputCount > 1)
 		{
-			for (size_t i = 1; i < stInputCount; i++)
+			for (size_t i = 0; i < stInputCount; i++)
 			{
-				glm::mat4 m4Transform;
-
-				m4Transform = input.at(i)->GetAdjustMatrix() * m4First;
-				stVertex = pclLUM.addPointCloud(input.at(i)->GetPointCloudData());// , ConvertTransformMatrix(m4Transform));
+				stVertex = pclLUM.addPointCloud(input.at(i)->GetPointCloudData());
 				pVertexIndex.push_back(std::pair<size_t, size_t>(i, stVertex));
 			}
 

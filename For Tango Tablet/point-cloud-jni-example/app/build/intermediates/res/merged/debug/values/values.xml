@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- From: file:/D:/Github/TangoViewer/For%20Tango%20Tablet/point-cloud-jni-example/app/src/main/res/values/dimens.xml -->
+    <!-- From: file:/D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/res/values/dimens.xml -->
     <eat-comment/>
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
-    <!-- From: file:/D:/Github/TangoViewer/For%20Tango%20Tablet/point-cloud-jni-example/app/src/main/res/values/strings.xml -->
+    <!-- From: file:/D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/res/values/strings.xml -->
     <eat-comment/>
     <string name="app_name">Project Tango Native Point Cloud</string>
     <string name="app_version">"App version: "</string>
@@ -25,7 +25,7 @@
     <string name="third_person">Third</string>
     <string name="top_down">Top</string>
     <string name="vertex_count">"Number of points: "</string>
-    <!-- From: file:/D:/Github/TangoViewer/For%20Tango%20Tablet/point-cloud-jni-example/app/src/main/res/values/styles.xml -->
+    <!-- From: file:/D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/res/values/styles.xml -->
     <eat-comment/>
     <style name="AppBaseTheme" parent="android:Theme.Light">
         <!--

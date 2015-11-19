@@ -4,7 +4,7 @@
 #define _CONSTANT_H_
 
 //Constants for Log
-#define MAX_LOG_LINE		1000
+#define MAX_LOG_LINE		200
 #define LOG_CLASS_NAME		L"Log Window"
 #define TEXT_BUFFER_SIZE	4096
 
@@ -48,7 +48,7 @@
 //Constants for LUM
 #define CORR_MAX_DISTANCE		2.5f
 #define CENTROID_MAX_DISTANCE	5.0f
-#define LUM_MAX_ITERATION		100
+#define LUM_MAX_ITERATION		900
 
 //Child ID Definition
 #define ID_LISTBOX		10

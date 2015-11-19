@@ -42,7 +42,7 @@ namespace kukdh1
 		SendMessage(hEdit, EM_SETSEL, nLength, nLength);
 
 		//Append Text
-		SendMessage(hEdit, EM_REPLACESEL, TRUE, (LPARAM)lpszString);
+		SendMessage(hEdit, EM_REPLACESEL, FALSE, (LPARAM)lpszString);
 
 		//Check line count
 		int nLine;
@@ -60,6 +60,10 @@ namespace kukdh1
 			//Delete lines
 			SendMessage(hEdit, EM_REPLACESEL, FALSE, (LPARAM)L"");
 		}
+
+		nLength = GetWindowTextLength(hEdit);
+		SendMessage(hEdit, EM_SETSEL, nLength, nLength);
+		SendMessage(hEdit, EM_SCROLLCARET, 0, 0);
 		
 		free(lpszString);
 	}

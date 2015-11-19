@@ -9,6 +9,7 @@
 #include "Log.h"
 #include "Stopwatch.h"
 #include "LUM.h"
+#include "Map.h"
 
 #pragma comment(lib, "comctl32")
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
@@ -87,7 +88,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			RECT rtGLWindow;
 			
 			hFont = CreateFont(17, 0, 0, 0, 400, 0, 0, 0, DEFAULT_CHARSET, 3, 2, 1, FF_ROMAN, L"Segoe UI");
-			hListBox = CreateWindow(WC_LISTBOX, NULL, WS_VISIBLE | WS_CHILD | LBS_DISABLENOSCROLL| LBS_MULTIPLESEL | LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | LBS_NOTIFY, 0, 0, LIST_WIDTH, LIST_HEIGHT, hWnd, (HMENU)ID_LISTBOX, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
+			hListBox = CreateWindow(WC_LISTBOX, NULL, WS_VSCROLL | WS_VISIBLE | WS_CHILD | LBS_DISABLENOSCROLL| LBS_MULTIPLESEL | LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | LBS_NOTIFY, 0, 0, LIST_WIDTH, LIST_HEIGHT, hWnd, (HMENU)ID_LISTBOX, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
 
 			SendMessage(hListBox, WM_SETFONT, (WPARAM)hFont, TRUE);
 
@@ -186,6 +187,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 					SendMessage(hListBox, LB_SETSEL, FALSE, -1);
 					glWindow->Refresh();
 					break;
+				case 'M':	//Save selected item to Map File
+					kukdh1::Map *mMap;
+					WCHAR *pszTemp;
+
+					mMap = new kukdh1::Map();
+
+					lWindow->PrintLog(L"Save selected data to map.\r\n");
+
+					for (int i = 0; i < nCount; i++)
+					{
+						mMap->AddPointCloud((kukdh1::PointCloud *)SendMessage(hListBox, LB_GETITEMDATA, nSelected[i], 0));
+					}
+
+					pszTemp = (WCHAR *)calloc(MAX_PATH, sizeof(WCHAR));
+
+					wcscpy_s(pszTemp, MAX_PATH, pszFolderPath);
+					wcscat_s(pszTemp, MAX_PATH, L"PointCloudMap.pcdx");
+
+					mMap->DownSampling();
+					mMap->ToFile(pszTemp);
+
+					delete mMap;
+					free(pszTemp);
+
+					lWindow->PrintLog(L"Save selected data to map Finished\r\n\r\n");
+					break;
 			}
 
 			free(nSelected);
@@ -274,7 +301,7 @@ DWORD WINAPI FileOpenThread(LPVOID arg)
 
 	pszSearch = (WCHAR *)calloc(MAX_PATH, sizeof(WCHAR));
 	wcscpy_s(pszSearch, MAX_PATH, pszFolderPath);
-	wcscat_s(pszSearch, MAX_PATH, L"PointCloud_*.pcdx");
+	wcscat_s(pszSearch, MAX_PATH, L"*.pcdx");
 
 	hSearch = FindFirstFile(pszSearch, &wfd);
 
@@ -338,7 +365,7 @@ DWORD WINAPI ErrorCorrectionThread(LPVOID arg)
 
 	stCloudCount = SendMessage(hListBox, LB_GETCOUNT, 0, 0);
 
-	lWindow->PrintLog(L"Generate Relation Tree for %d planes\r\n", stCloudCount);
+	lWindow->PrintLog(L"Generate Relation Tree for %d data\r\n", stCloudCount);
 	stopwatch.tic();
 
 	for (size_t i = 0; i < stCloudCount; i++)
@@ -375,7 +402,7 @@ DWORD WINAPI LUMThread(LPVOID arg)
 
 	stCloudCount = SendMessage(hListBox, LB_GETCOUNT, 0, 0);
 
-	lWindow->PrintLog(L"Calculate LUM for %d planes\r\n", stCloudCount);
+	lWindow->PrintLog(L"Calculate LUM for %d data\r\n", stCloudCount);
 	stopwatch.tic();
 
 	for (size_t i = 0; i < stCloudCount; i++)

@@ -2,6 +2,11 @@
 
 namespace kukdh1
 {
+	glm::vec3 operator+(pcl::PointXYZRGB &lhs, const pcl::PointXYZRGB &rhs)
+	{
+		return glm::vec3(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z);
+	}
+
 	template <typename PointT>
 	void TransformPoint(PointT &input, PointT &translate, Eigen::Matrix3f &rotate)
 	{
@@ -122,6 +127,11 @@ namespace kukdh1
 		glEnd();
 	}
 
+	glm::vec3 CalculateCenterOfBoundingBox(BoundingBox<pcl::PointXYZRGB>& pclRegion)
+	{
+		return (pclRegion.Point[0] + pclRegion.Point[6]) / 2.f;
+	}
+
 	pcl::PointXYZRGB & PointCloud::GetPointCloudOrigin()
 	{
 		return pclOrigin;
@@ -136,7 +146,7 @@ namespace kukdh1
 	{
 		return m4Adjust;
 	}
-
+	
 	PointCloud::PointCloud()
 	{
 		pclPointCloudUnordered = pcl::PointCloud<pcl::PointXYZRGB>::Ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
@@ -386,77 +396,22 @@ namespace kukdh1
 
 	BOOL PointCloud::FromFile(WCHAR * pszFilePath)
 	{
-		HANDLE hFile;
-		DWORD dwRead;
-		Pointij *ppPointij;
-		glm::mat4 m4Temp;
-		unsigned int uiPointCount;
+		FileIO fiFile;
 
-		hFile = CreateFile(pszFilePath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+		bFiltered = FALSE;
+		bOBBCalculated = FALSE;
+		bPlaneCalculated = FALSE;
 
-		if (hFile != INVALID_HANDLE_VALUE)
-		{
-			float fMatrix[16];
-			WCHAR *pszName;
-
-			pszName = wcsrchr(pszFilePath, L'\\') + 1;
-			swscanf_s(pszName, L"PointCloud_%f.pcdx", &fTimestamp);
-
-			ReadFile(hFile, &uiPointCount, 4, &dwRead, NULL);
-
-			if (uiPointCount)
-			{
-				ReadFile(hFile, fMatrix, 16 * 4, &dwRead, NULL);
-				memcpy(glm::value_ptr(m4Temp), fMatrix, 16 * 4);
-				m4Temp *= kOpengGL_T_Depth;
-
-				ppPointij = (Pointij *)calloc(uiPointCount, sizeof(Pointij));
-
-				if (ppPointij)
-				{
-					ReadFile(hFile, ppPointij, sizeof(Pointij) * uiPointCount, &dwRead, NULL);
-
-					pclPointCloudUnordered->clear();
-					pclPointCloudUnordered->width = uiPointCount;
-					pclPointCloudUnordered->height = 1;
-					pclPointCloudUnordered->resize(uiPointCount);
-
-					//Set Read Point Cloud
-					concurrency::parallel_for(size_t(0), uiPointCount, [&](size_t i)
-					{
-						glm::vec4 v4Temp;
-						Pointij *ppNow;
-
-						ppNow = ppPointij + i;
-						v4Temp.w = 1;
-
-						memcpy(glm::value_ptr(v4Temp), ppNow, 12);
-						v4Temp = m4Temp * v4Temp;
-
-						pclPointCloudUnordered->at(i).x = v4Temp.x;
-						pclPointCloudUnordered->at(i).y = v4Temp.y;
-						pclPointCloudUnordered->at(i).z = v4Temp.z;
-						pclPointCloudUnordered->at(i).rgba = ppNow->c;
-					});
-
-					free(ppPointij);
-
-					//Set Origin
-					TransformPoint(pclOrigin, m4Temp);
-				}
-			}
-
-			CloseHandle(hFile);
-
-			return TRUE;
-		}
-
-		return FALSE;
+		return fiFile.ReadFromFile(pszFilePath, pclPointCloudUnordered, &fTimestamp, &pclOrigin);
 	}
 
 	BOOL PointCloud::ToFile(WCHAR * pszFilePath)
 	{
-		return TRUE;
+		FileIO fiFile;
+
+		SaveTransformMatrix();
+
+		return fiFile.WriteToFile(pszFilePath, FLAG_NO_MUL | FLAG_COLOR_DATA, pclPointCloudUnordered);	//No Mul | No ij
 	}
 
 	std::vector<PlaneInfo> & PointCloud::GetPlaneInfo()

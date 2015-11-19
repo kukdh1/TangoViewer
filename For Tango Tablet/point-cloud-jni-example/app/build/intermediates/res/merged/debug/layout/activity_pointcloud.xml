@@ -227,4 +227,4 @@
         android:paddingRight="5dp"
         android:text="@string/third_person" />
 
-</RelativeLayout><!-- From: file:/D:/Github/TangoViewer/For%20Tango%20Tablet/point-cloud-jni-example/app/src/main/res/layout/activity_pointcloud.xml -->
+</RelativeLayout><!-- From: file:/D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/res/layout/activity_pointcloud.xml -->

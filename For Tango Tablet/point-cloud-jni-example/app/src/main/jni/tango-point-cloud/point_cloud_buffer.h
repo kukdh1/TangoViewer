@@ -12,6 +12,9 @@
 #include <tango_client_api.h>  // NOLINT
 #include <tango-gl/util.h>
 
+//#define WRITE_IJ_DATA
+#define WRITE_COLOR_DATA
+
 typedef struct POINT_CLOUD_BUFFER {
     POINT_CLOUD_BUFFER(std::vector<float> &pts, std::vector<uint8_t> &cls, std::vector<uint16_t> &ij, glm::mat4 &tf, double time)
     {

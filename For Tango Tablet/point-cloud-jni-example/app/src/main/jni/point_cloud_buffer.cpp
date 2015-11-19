@@ -9,10 +9,9 @@ void * filethread(void *data)
     POINT_CLOUD_BUFFER *buf = (POINT_CLOUD_BUFFER *)data;
     char filename[256];
     uint8_t buffer[1024];
-    timeval time;
+    float fTimestamp;
 
     sprintf(filename, "/storage/emulated/0/TangoData/PointCloud_%.3lf.pcdx", buf->timestamp);
-  //  LOGD("Save(): %s", filename);
 
     FILE *out = fopen(filename, "w+");
 
@@ -20,8 +19,28 @@ void * filethread(void *data)
     float *fpt = buf->points.data();
     uint8_t *cpt = buf->colors.data();
     uint16_t *ijpt = buf->ijs.data();
+    uint32_t flag;
+
+    fTimestamp = buf->timestamp;
 
     if (out) {
+        //Write Header
+        fwrite("PCD2", sizeof(char), 4, out);
+
+        //Make Flag
+        flag = 0x00000000;
+#ifdef WRITE_IJ_DATA
+        flag |= 0x00000004;
+#endif
+#ifdef WRITE_COLOR_DATA
+        flag |= 0x00000008;
+#endif
+        //Write Flag
+        fwrite(&flag, sizeof(uint32_t), 1, out);
+
+        //Write Timestamp
+        fwrite(&fTimestamp, sizeof(float), 1, out);
+
         //Write the number of points
         num = buf->colors.size() / 4;
         fwrite(&num, sizeof(uint32_t), 1, out);
@@ -33,9 +52,12 @@ void * filethread(void *data)
         for (uint32_t i = 0; i < num; i++)
         {
             fwrite(fpt + 3 * i, sizeof(float), 3, out);
+#ifdef WRITE_COLOR_DATA
             fwrite(cpt + 4 * i, sizeof(uint8_t), 4, out);
+#endif
+#ifdef WRITE_IJ_DATA
             fwrite(ijpt + 2 * i, sizeof(uint16_t), 2, out);
-            LOGI("IJ : %d %d", *(ijpt + 2 * i), *(ijpt + 2 * i + 1));
+#endif
         }
 
         fclose(out);

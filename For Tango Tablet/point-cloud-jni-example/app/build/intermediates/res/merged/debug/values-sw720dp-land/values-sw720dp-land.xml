@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- From: file:/D:/Github/TangoViewer/For%20Tango%20Tablet/point-cloud-jni-example/app/src/main/res/values-sw720dp-land/dimens.xml -->
+    <!-- From: file:/D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/res/values-sw720dp-land/dimens.xml -->
     <eat-comment/>
     <dimen name="activity_horizontal_margin">128dp</dimen>
 </resources>

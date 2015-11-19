@@ -41,14 +41,14 @@ namespace kukdh1
 	float CalculateAngleBetweenVectors(glm::vec3 v3PlaneA, glm::vec3 v3PlaneB);
 
 	/* CalculateDistanceBetweenPlanes Function
-	*  Calculate distance between two planes.
-	*/
+	 *  Calculate distance between two planes.
+	 */
 	float CalculateDistanceBetweenPlanes(pcl::ModelCoefficients::Ptr pclPlane, Eigen::Vector3f &ptPoint);
 
 	/* IsIntersect Function
-	*  Check two bounding box whether intersect.
-	*  Return false with no intersection.
-	*/
+	 *  Check two bounding box whether intersect.
+	 *  Return false with no intersection.
+	 */
 	template <typename PointT>
 	BOOL IsIntersect(BoundingBox<PointT> &inputA, BoundingBox<PointT> &inputB);
 
@@ -69,7 +69,7 @@ namespace kukdh1
 		public:
 			~PlaneTree();
 
-			void AddPointCloud(std::vector<PointCloud *> &vCloudData);
+			void AddPointCloud(PointCloudVector &vCloudData);
 			void DoErrorCorrection(LogWindow *pLogWindow);
 	};
 }

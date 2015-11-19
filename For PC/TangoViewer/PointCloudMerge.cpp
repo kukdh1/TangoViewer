@@ -7,11 +7,6 @@ namespace kukdh1
 		return glm::vec3(lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z);
 	}
 
-	glm::vec3 operator+(pcl::PointXYZRGB &lhs, const pcl::PointXYZRGB &rhs)
-	{
-		return glm::vec3(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z);
-	}
-
 	glm::vec3 convert(pcl::PointXYZRGB &point)
 	{
 		return glm::vec3(point.x, point.y, point.z);
@@ -725,7 +720,7 @@ namespace kukdh1
 			delete vTreeData.at(i);
 	}
 	
-	void PlaneTree::AddPointCloud(std::vector<PointCloud *> &vCloudData)
+	void PlaneTree::AddPointCloud(PointCloudVector &vCloudData)
 	{
 		size_t stCloudCount;
 
