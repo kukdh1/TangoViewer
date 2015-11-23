@@ -109,7 +109,19 @@ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/obj/
  D:/Android/android-ndk-r10e/sources/cxx-stl/gnu-libstdc++/4.8/include/cstring \
  D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtc/type_ptr.inl \
  D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/matrix_decompose.hpp \
- D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/matrix_decompose.inl
+ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/matrix_decompose.inl \
+ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/vector_angle.hpp \
+ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtc/epsilon.hpp \
+ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtc/epsilon.inl \
+ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/quaternion.hpp \
+ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/../gtx/norm.hpp \
+ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/../gtx/norm.inl \
+ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/quaternion.inl \
+ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/rotate_vector.hpp \
+ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/../gtx/transform.hpp \
+ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/../gtx/transform.inl \
+ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/rotate_vector.inl \
+ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/vector_angle.inl
 
 D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/tango-point-cloud/point_cloud_buffer.h:
 
@@ -330,3 +342,27 @@ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/
 D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/matrix_decompose.hpp:
 
 D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/matrix_decompose.inl:
+
+D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/vector_angle.hpp:
+
+D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtc/epsilon.hpp:
+
+D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtc/epsilon.inl:
+
+D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/quaternion.hpp:
+
+D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/../gtx/norm.hpp:
+
+D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/../gtx/norm.inl:
+
+D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/quaternion.inl:
+
+D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/rotate_vector.hpp:
+
+D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/../gtx/transform.hpp:
+
+D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/../gtx/transform.inl:
+
+D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/rotate_vector.inl:
+
+D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/vector_angle.inl:

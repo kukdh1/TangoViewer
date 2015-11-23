@@ -31,6 +31,7 @@
 #include "glm/gtc/quaternion.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include "glm/gtx/matrix_decompose.hpp"
+#include "glm/gtx/vector_angle.hpp"
 
 #define LOG_TAG "tango_jni_example"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)

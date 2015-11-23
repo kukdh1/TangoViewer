@@ -87,6 +87,12 @@ glm::mat4 PoseData::GetMatrixFromPose(const TangoPoseData& pose) {
   return matrix;
 }
 
+    bool PoseData::isIMUStable() {
+        if (cur_pose_.status_code == TANGO_POSE_VALID)
+            return true;
+        else
+            return false;
+    }
 
 std::string PoseData::GetStringFromStatusCode(TangoPoseStatusType status) {
   std::string ret_string;

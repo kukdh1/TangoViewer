@@ -29,6 +29,7 @@
 #include <tango-point-cloud/scene.h>
 #include <tango-point-cloud/tango_event_data.h>
 #include <tango-point-cloud/image_frame.h>
+#include <tango-point-cloud/async_socket_client.h>
 
 namespace tango_point_cloud {
 
@@ -52,6 +53,8 @@ class PointCloudApp {
 
   // Connect the onPoseAvailable callback.
   int TangoConnectCallbacks();
+
+ bool isIMUStable();
 
   // Connect to Tango Service.
   // This function will start the Tango Service pipeline, in this case, it will
@@ -145,6 +148,7 @@ class PointCloudApp {
   glm::mat4 GetPoseMatrixAtTimestamp(double timstamp);
 
     void depthPointToImageAxis(float dx, float dy, float dz, float *ix, float *iy);
+ bool SignificantChangeInTransform(glm::mat4 &now);
 
   // Query sensor/camera extrinsic from the Tango Service, the extrinsic is only
   // available after the service is connected.
@@ -188,6 +192,8 @@ class PointCloudApp {
   Scene main_scene_;
 
   ImageFrame image_frame_;
+  NetworkClient ncClient;
+ glm::mat4 oldTransform;
 
   // Tango configration file, this object is for configuring Tango Service setup
   // before connect to service. For example, we turn on the depth sensing in

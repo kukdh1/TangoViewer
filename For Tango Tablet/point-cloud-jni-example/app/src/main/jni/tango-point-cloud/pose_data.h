@@ -56,6 +56,8 @@ class PoseData {
     imu_T_device_ = imu_T_device;
   }
 
+  bool isIMUStable();
+
   // @return: color camera frame with respect to IMU frame.
   glm::mat4 GetImuTColorCamera() { return imu_T_color_camera_; }
 

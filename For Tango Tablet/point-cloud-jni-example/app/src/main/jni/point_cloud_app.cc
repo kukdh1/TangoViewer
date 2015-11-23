@@ -194,7 +194,7 @@ int PointCloudApp::TangoConnectCallbacks() {
   }
 
   if (TangoService_connectOnFrameAvailable(TANGO_CAMERA_COLOR, (void *)this, onFrameAvailableRouter) != TANGO_SUCCESS) {
-    LOGI("TangoService_connectOnFrameAvailable(): Failed");
+    LOGE("TangoService_connectOnFrameAvailable(): Failed");
     return false;
   }
 
@@ -236,6 +236,9 @@ void PointCloudApp::TangoResetMotionTracking() {
 
 void PointCloudApp::InitializeGLContent() {
   main_scene_.InitGLContent();
+
+    if (ncClient.connectToServer() < 0)
+        LOGE("Socket Failed");
 }
 
 void PointCloudApp::SetViewPort(int width, int height) {
@@ -344,7 +347,30 @@ void PointCloudApp::Render() {
   }
 
   main_scene_.Render(cur_pose_transformation, point_cloud_transformation, vertices_cpy, color_buffer, ijs_cpy, point_cloud_timestamp);
+
+    if(isIMUStable() && SignificantChangeInTransform(point_cloud_transformation)) {
+        SendPointCloudToServer(&ncClient, vertices_cpy, color_buffer, point_cloud_transformation);
+        oldTransform = glm::mat4(point_cloud_transformation);
+    }
 }
+
+    bool PointCloudApp::SignificantChangeInTransform(glm::mat4 &now)
+    {
+        glm::mat4 temp = now - oldTransform;
+        float mean;
+        float *data;
+
+        mean = 0;
+        data = glm::value_ptr(temp);
+        for (unsigned int i = 0; i < 16; i++)
+            mean += data[i] * data[i];
+
+        if (mean > 0.01)
+            return true;
+        else
+            return false;
+    }
+
 void PointCloudApp::depthPointToImageAxis(float dx, float dy, float dz, float *ix, float *iy)
 {
     float x, y;
@@ -370,6 +396,11 @@ std::string PointCloudApp::GetPoseString() {
   std::lock_guard<std::mutex> lock(pose_mutex_);
   return pose_data_.GetPoseDebugString();
 }
+
+    bool PointCloudApp::isIMUStable() {
+        std::lock_guard<std::mutex> lock(pose_mutex_);
+        return pose_data_.isIMUStable();
+    }
 
 std::string PointCloudApp::GetEventString() {
   std::lock_guard<std::mutex> lock(tango_event_mutex_);

@@ -107,6 +107,18 @@ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/obj/
  D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtc/type_ptr.inl \
  D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/matrix_decompose.hpp \
  D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/matrix_decompose.inl \
+ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/vector_angle.hpp \
+ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtc/epsilon.hpp \
+ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtc/epsilon.inl \
+ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/quaternion.hpp \
+ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/../gtx/norm.hpp \
+ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/../gtx/norm.inl \
+ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/quaternion.inl \
+ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/rotate_vector.hpp \
+ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/../gtx/transform.hpp \
+ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/../gtx/transform.inl \
+ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/rotate_vector.inl \
+ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/vector_angle.inl \
  D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/tango-point-cloud/point_cloud_data.h \
  D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/tango-point-cloud/pose_data.h \
  D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/tango-point-cloud/scene.h \
@@ -160,7 +172,28 @@ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/obj/
  D:/Android/android-ndk-r10e/sources/cxx-stl/gnu-libstdc++/4.8/include/valarray \
  D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../../../../Android/OpenCV-2.4.10-android-sdk/sdk/native/jni/include/opencv2/contrib/openfabmap.hpp \
  D:/Android/android-ndk-r10e/sources/cxx-stl/gnu-libstdc++/4.8/include/set \
- D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../../../../Android/OpenCV-2.4.10-android-sdk/sdk/native/jni/include/opencv2/opencv_modules.hpp
+ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../../../../Android/OpenCV-2.4.10-android-sdk/sdk/native/jni/include/opencv2/opencv_modules.hpp \
+ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/tango-point-cloud/async_socket_client.h \
+ D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/arpa/inet.h \
+ D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/netinet/in.h \
+ D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/endian.h \
+ D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/sys/endian.h \
+ D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/machine/endian.h \
+ D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/linux/socket.h \
+ D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/asm/socket.h \
+ D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/asm/sockios.h \
+ D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/linux/sockios.h \
+ D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/linux/uio.h \
+ D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/linux/in.h \
+ D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/asm/byteorder.h \
+ D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/linux/byteorder/little_endian.h \
+ D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/linux/byteorder/swab.h \
+ D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/linux/byteorder/generic.h \
+ D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/linux/in6.h \
+ D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/linux/ipv6.h \
+ D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/netinet/in6.h \
+ D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/sys/socket.h \
+ D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/netdb.h
 
 D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../tango-gl/include/tango-gl/conversions.h:
 
@@ -376,6 +409,30 @@ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/
 
 D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/matrix_decompose.inl:
 
+D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/vector_angle.hpp:
+
+D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtc/epsilon.hpp:
+
+D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtc/epsilon.inl:
+
+D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/quaternion.hpp:
+
+D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/../gtx/norm.hpp:
+
+D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/../gtx/norm.inl:
+
+D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/quaternion.inl:
+
+D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/rotate_vector.hpp:
+
+D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/../gtx/transform.hpp:
+
+D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/../gtx/transform.inl:
+
+D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/../gtx/rotate_vector.inl:
+
+D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../third-party/glm/glm/gtx/vector_angle.inl:
+
 D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/tango-point-cloud/point_cloud_data.h:
 
 D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/tango-point-cloud/pose_data.h:
@@ -483,3 +540,45 @@ D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/
 D:/Android/android-ndk-r10e/sources/cxx-stl/gnu-libstdc++/4.8/include/set:
 
 D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/../../../../../../../../Android/OpenCV-2.4.10-android-sdk/sdk/native/jni/include/opencv2/opencv_modules.hpp:
+
+D:/Github/TangoViewer/For_Tango_Tablet/point-cloud-jni-example/app/src/main/jni/tango-point-cloud/async_socket_client.h:
+
+D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/arpa/inet.h:
+
+D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/netinet/in.h:
+
+D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/endian.h:
+
+D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/sys/endian.h:
+
+D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/machine/endian.h:
+
+D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/linux/socket.h:
+
+D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/asm/socket.h:
+
+D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/asm/sockios.h:
+
+D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/linux/sockios.h:
+
+D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/linux/uio.h:
+
+D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/linux/in.h:
+
+D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/asm/byteorder.h:
+
+D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/linux/byteorder/little_endian.h:
+
+D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/linux/byteorder/swab.h:
+
+D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/linux/byteorder/generic.h:
+
+D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/linux/in6.h:
+
+D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/linux/ipv6.h:
+
+D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/netinet/in6.h:
+
+D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/sys/socket.h:
+
+D:/Android/android-ndk-r10e/platforms/android-19/arch-arm/usr/include/netdb.h:

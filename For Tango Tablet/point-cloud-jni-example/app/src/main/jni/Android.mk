@@ -40,6 +40,7 @@ LOCAL_SRC_FILES += jni_interface.cc \
                    tango_event_data.cc \
                    image_frame.cpp \
                    point_cloud_buffer.cpp \
+                   async_socket_client.cpp \
                    $(PROJECT_ROOT_FROM_JNI)/tango-gl/axis.cpp \
                    $(PROJECT_ROOT_FROM_JNI)/tango-gl/camera.cpp \
                    $(PROJECT_ROOT_FROM_JNI)/tango-gl/conversions.cpp \
