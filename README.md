@@ -1,3 +1,5 @@
+# Please visit TangoViewer2 repository
+
 # TangoViewer for Tango Tablet
 ## Description
 Project Tango Tablet Point Cloud Viewer with Camera Sync.
